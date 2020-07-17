@@ -1,0 +1,27 @@
+import { init } from '../src/server'
+import Hapi from '@hapi/hapi'
+
+describe('Status plugin', () => {
+  let server: Hapi.Server
+
+  beforeAll(async () => {
+    server = await init()
+  })
+
+  afterAll(async () => {
+    server.stop
+  })
+
+  test('', async () => {
+    const res = await server.inject({
+      method: 'GET',
+      url: '/',
+    })
+    expect(res.statusCode).toEqual(200)
+    const response = JSON.parse(res.payload)
+    expect(response.up).toEqual(true)
+
+    // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
+    // expect(data).toBeTruthy()
+  })
+})

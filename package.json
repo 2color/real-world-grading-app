@@ -1,0 +1,33 @@
+{
+  "name": "prisma-class",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@hapi/boom": "^9.1.0",
+    "@hapi/hapi": "^19.1.1",
+    "@hapi/joi": "^17.1.1",
+    "@prisma/client": "2.3.0",
+    "date-fns": "^2.14.0",
+    "joi-extract-type": "^15.0.8"
+  },
+  "devDependencies": {
+    "@prisma/cli": "2.3.0",
+    "@types/hapi__hapi": "^19.0.3",
+    "@types/hapi__joi": "^17.1.4",
+    "@types/jest": "^26.0.4",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.2",
+    "ts-node": "8.10.2",
+    "ts-node-dev": "^1.0.0-pre.52",
+    "typescript": "^3.9.6"
+  },
+  "scripts": {
+    "dev": "ts-node-dev --respawn ./src/index.ts",
+    "test": "jest",
+    "postgres:start": "docker-compose up -d"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

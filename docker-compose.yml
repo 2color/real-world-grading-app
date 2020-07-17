@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  # In Docker
+  # - TEST_POSTGRES_URI=postgres://prisma:prisma@postgres/
+  # Outside Docker
+  # - TEST_POSTGRES_URI=postgres://prisma:prisma@localhost:5432/
+
+  postgres:
+    image: postgres:10.3
+    restart: always
+    environment:
+      - POSTGRES_USER=prisma
+      - POSTGRES_PASSWORD=prisma
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+volumes:
+  postgres:
