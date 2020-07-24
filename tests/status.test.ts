@@ -9,7 +9,7 @@ describe('Status plugin', () => {
   })
 
   afterAll(async () => {
-    server.stop
+    await server.stop()
   })
 
   test('', async () => {

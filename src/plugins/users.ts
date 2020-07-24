@@ -13,7 +13,7 @@ const usersPlugin = {
         method: 'GET',
         path: '/users/{userId}',
         handler: async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-          request.server.app.prisma
+          // request.server.app.prisma
           return h.response(request.params.userId).code(200)
         },
         options: {
@@ -65,18 +65,16 @@ const registerValidator = Joi.object({
   }).optional(),
 })
 
-interface SocialInput {
-  facebook: string
-  twitter: string
-  github: string
-  website: string
-}
 interface RegisterInput {
   name: string
   email: string
-  social: SocialInput
+  social: {
+    facebook?: string
+    twitter?: string
+    github?: string
+    website?: string
+  }
 }
-
 
 /**
  * Login/Registration handler
@@ -84,8 +82,7 @@ interface RegisterInput {
  */
 async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
-  const payload = request.payload
-  //  as RegisterInput
+  const payload = request.payload as RegisterInput
 
   try {
     await prisma.user.create({

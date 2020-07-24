@@ -10,7 +10,7 @@ describe('POST /users - create user', () => {
   })
 
   afterAll(async () => {
-    server.stop()
+    await server.stop()
   })
 
   test('create user', async () => {
@@ -27,7 +27,6 @@ describe('POST /users - create user', () => {
       }
     })
     expect(res.statusCode).toEqual(200)
-    console.log(res.payload)
     // const response = JSON.parse(res.payload)
     // expect(response.up).toEqual(true)
 
@@ -53,7 +52,6 @@ describe('POST /users - create user', () => {
       method: 'GET',
       url: '/users/a123',
     })
-    console.log(response)
     expect(response.statusCode).toEqual(400)
 
     // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
