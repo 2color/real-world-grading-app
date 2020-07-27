@@ -35,7 +35,8 @@ const usersPlugin = {
         options: {
           validate: {
             payload: Joi.object({
-              name: Joi.string().required(),
+              firstName: Joi.string().required(),
+              lastName: Joi.string().required(),
               email: Joi.string().email().required(),
               social: Joi.object({
                 facebook: Joi.string().optional(),
@@ -55,7 +56,8 @@ const usersPlugin = {
 export default usersPlugin
 
 const registerValidator = Joi.object({
-  name: Joi.string().required(),
+  firstName: Joi.string().required(),
+  lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   social: Joi.object({
     facebook: Joi.string().optional(),
@@ -66,7 +68,8 @@ const registerValidator = Joi.object({
 })
 
 interface RegisterInput {
-  name: string
+  firstName: string
+  lastName: string
   email: string
   social: {
     facebook?: string
@@ -87,7 +90,8 @@ async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   try {
     await prisma.user.create({
       data: {
-        name: payload.name,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
         email: payload.email,
         social: JSON.stringify(payload.social),
       },

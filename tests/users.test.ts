@@ -6,7 +6,6 @@ describe('POST /users - create user', () => {
 
   beforeAll(async () => {
     server = await init()
-    // await server.app.prisma.user.deleteMany({})
   })
 
   afterAll(async () => {
@@ -18,7 +17,8 @@ describe('POST /users - create user', () => {
       method: 'POST',
       url: '/users',
       payload: {
-        name: 'test-name',
+        firstName: 'test-first-name',
+        lastName: 'test-last-name',
         email: `test-${Date.now()}@prisma.io`,
         social: {
           twitter: 'thisisalice',
@@ -27,11 +27,6 @@ describe('POST /users - create user', () => {
       }
     })
     expect(res.statusCode).toEqual(200)
-    // const response = JSON.parse(res.payload)
-    // expect(response.up).toEqual(true)
-
-    // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
-    // expect(data).toBeTruthy()
   })
 
 
@@ -42,9 +37,6 @@ describe('POST /users - create user', () => {
     })
     expect(response.statusCode).toEqual(200)
     expect(response.payload).toEqual('123')
-
-    // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
-    // expect(data).toBeTruthy()
   })
 
   test('get user fails with invalid id', async () => {
@@ -53,8 +45,5 @@ describe('POST /users - create user', () => {
       url: '/users/a123',
     })
     expect(response.statusCode).toEqual(400)
-
-    // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
-    // expect(data).toBeTruthy()
   })
 })
