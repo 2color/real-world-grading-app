@@ -22,13 +22,15 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/grading-app
 
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: yarn
-      - run: yarn test
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/grading-app
+      - run: npm ci
+      # run the migration in the test database
+      - run: npm run migrate:up
+      - run: npm run test
