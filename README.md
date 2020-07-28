@@ -5,7 +5,16 @@ A real-world class grading application built with Prisma.
 The grading application is used to manage enrollment in online classes, tests (as in exams) for classes, and test results.
 
 The goal if this application is to showcase a real-world scenario of an application using Prisma. the following aspects of Prisma
-- Complex relations 
+- Data modeling
+- CRUD
+- Aggregations
+- API layer
+- Validation
+- Testing
+- Authentication
+- Authorization
+- Integration with other APIs
+- Deployment
 
 ## Data model
 
