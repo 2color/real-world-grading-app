@@ -41,7 +41,7 @@ model CourseEnrollment {
   user     User   @relation(fields: [userId], references: [id])
   course   Course @relation(fields: [courseId], references: [id])
 
-  @@id([userId, courseId, role])
+  @@id([userId, courseId])
 }
 
 model Test {
