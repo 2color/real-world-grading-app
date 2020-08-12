@@ -1,3 +1,7 @@
-import { start, init } from './server'
+import { createServer, startServer } from './server'
 
-init().then(() => start())
+createServer()
+  .then(startServer)
+  .catch((err) => {
+    console.log(err)
+  })

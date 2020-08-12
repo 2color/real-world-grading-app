@@ -1,11 +1,11 @@
-import { init } from '../src/server'
+import { createServer } from '../src/server'
 import Hapi from '@hapi/hapi'
 
 describe('POST /users - create user', () => {
   let server: Hapi.Server
 
   beforeAll(async () => {
-    server = await init()
+    server = await createServer()
   })
 
   afterAll(async () => {
