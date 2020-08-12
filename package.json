@@ -21,7 +21,7 @@
     "typescript": "^3.9.6"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn ./src/index.ts",
+    "dev": "ts-node-dev --respawn ./src/server.ts",
     "seed": "ts-node ./src/seed.ts",
     "test": "jest",
     "compile": "tsc",
