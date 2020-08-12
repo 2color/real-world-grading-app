@@ -20,8 +20,5 @@ describe('Status plugin', () => {
     expect(res.statusCode).toEqual(200)
     const response = JSON.parse(res.payload)
     expect(response.up).toEqual(true)
-
-    // const data = await prisma.user.findMany({ take: 1, select: { id: true } })
-    // expect(data).toBeTruthy()
   })
 })

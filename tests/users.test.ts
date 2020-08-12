@@ -12,8 +12,10 @@ describe('POST /users - create user', () => {
     await server.stop()
   })
 
+  let userId: number
+
   test('create user', async () => {
-    const res = await server.inject({
+    const response = await server.inject({
       method: 'POST',
       url: '/users',
       payload: {
@@ -26,17 +28,31 @@ describe('POST /users - create user', () => {
         }
       }
     })
-    expect(res.statusCode).toEqual(200)
+
+    userId = JSON.parse(response.payload)?.id
+
+    expect(response.statusCode).toEqual(200)
   })
 
 
-  test('get user', async () => {
+  test('get user returns 404 for non existant user', async () => {
     const response = await server.inject({
       method: 'GET',
       url: '/users/123',
     })
+
+    expect(response.statusCode).toEqual(404)
+  })
+
+  test('get user returns user', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: `/users/${userId}`,
+    })
     expect(response.statusCode).toEqual(200)
-    expect(response.payload).toEqual('123')
+    const user = JSON.parse(response.payload)
+
+    expect(user.id).toBe(userId)
   })
 
   test('get user fails with invalid id', async () => {
@@ -45,5 +61,13 @@ describe('POST /users - create user', () => {
       url: '/users/a123',
     })
     expect(response.statusCode).toEqual(400)
+  })
+
+  test('delete user', async () => {
+    const response = await server.inject({
+      method: 'DELETE',
+      url: `/users/${userId}`,
+    })
+    expect(response.statusCode).toEqual(204)
   })
 })

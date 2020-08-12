@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi, { options } from '@hapi/joi'
+import Joi from '@hapi/joi'
 
 // plugin to instantiate Prisma Client
 const usersPlugin = {
@@ -10,10 +10,7 @@ const usersPlugin = {
       {
         method: 'GET',
         path: '/users/{userId}',
-        handler: async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-          // request.server.app.prisma
-          return h.response(request.params.userId).code(200)
-        },
+        handler: getUserHandler,
         options: {
           validate: {
             params: Joi.object({
@@ -32,18 +29,44 @@ const usersPlugin = {
         handler: registerHandler,
         options: {
           validate: {
-            payload: Joi.object({
-              firstName: Joi.string().required(),
-              lastName: Joi.string().required(),
-              email: Joi.string().email().required(),
-              social: Joi.object({
-                facebook: Joi.string().optional(),
-                twitter: Joi.string().optional(),
-                github: Joi.string().optional(),
-                website: Joi.string().optional(),
-              }).optional(),
+            payload: userInputValidator,
+            failAction: (request, h, err) => {
+              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
+              throw err
+            },
+          },
+        },
+      },
+      {
+        method: 'DELETE',
+        path: '/users/{userId}',
+        handler: deleteHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              userId: Joi.string().pattern(/^[0-9]+$/),
             }),
-            failAction: 'error',
+            failAction: (request, h, err) => {
+              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
+              throw err
+            },
+          },
+        },
+      },
+      {
+        method: 'PUT',
+        path: '/users/{userId}',
+        handler: updateHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              userId: Joi.string().pattern(/^[0-9]+$/),
+            }),
+            payload: userInputValidator,
+            failAction: (request, h, err) => {
+              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
+              throw err
+            },
           },
         },
       },
@@ -53,7 +76,7 @@ const usersPlugin = {
 
 export default usersPlugin
 
-const registerValidator = Joi.object({
+const userInputValidator = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
@@ -65,7 +88,7 @@ const registerValidator = Joi.object({
   }).optional(),
 })
 
-interface RegisterInput {
+interface UserInput {
   firstName: string
   lastName: string
   email: string
@@ -77,57 +100,82 @@ interface RegisterInput {
   }
 }
 
-/**
- * Login/Registration handler
- * Generates a short lived verification token and sends an email
- */
-async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
-  const payload = request.payload as RegisterInput
+  const userId = request.params.userId as string
 
   try {
-    await prisma.user.create({
+    const user = await prisma.user.findOne({
+      where: {
+        id: parseInt(userId, 10),
+      },
+    })
+    if (!user) {
+      return h.response().code(404)
+    } else {
+      return h.response(user).code(200)
+    }
+  } catch (err) {
+    console.log(err)
+    return h.response().code(500)
+  }
+}
+
+async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const { prisma } = request.server.app
+  const payload = request.payload as UserInput
+
+  try {
+    const createdUser = await prisma.user.create({
       data: {
         firstName: payload.firstName,
         lastName: payload.lastName,
         email: payload.email,
-        social: JSON.stringify(payload.social),
+        // social: JSON.stringify(payload.social),
+        social: payload.social,
+      },
+      select: {
+        id: true,
       },
     })
-    return h.response().code(200)
+    return h.response(createdUser).code(200)
   } catch (err) {
     console.log(err)
   }
+}
 
-  //   const rows = await db('users')
-  //     .select('user_id as userId')
-  //     .where({ email })
-  //   let userId
-  //   if (rows.length === 0) {
-  //     // user doesn't exist - persist first
-  //     userId = await db('users')
-  //       .insert({ email, verified: false })
-  //       .returning('user_id')
-  //       .then(([id]) => id)
-  //   } else {
-  //     userId = rows[0].userId
-  //   }
-  //   // Generate a new token
-  //   const tokenId = await db('tokens')
-  //     .insert({ user_id: userId, token_scope: AUTH_SCOPES.MAGICLINK })
-  //     .returning('token_id')
-  //     .then(([id]) => id)
-  //   // generate token and send email
-  //   const token = generateMagicLinkToken(tokenId)
-  //   await sendMagicLink({
-  //     refererHost,
-  //     email,
-  //     dao,
-  //     token,
-  //     network,
-  //   })
-  //   return h.response().code(200)
-  // } catch (error) {
-  //   return Boom.badImplementation(error.message)
-  // }
+async function deleteHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const { prisma } = request.server.app
+  const userId = request.params.userId as string
+
+  try {
+    await prisma.user.delete({
+      where: {
+        id: parseInt(userId, 10),
+      },
+    })
+    return h.response().code(204)
+  } catch (err) {
+    console.log(err)
+    return h.response().code(500)
+  }
+}
+
+async function updateHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const { prisma } = request.server.app
+  const userId = request.params.userId as string
+  const payload = request.payload as UserInput
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: parseInt(userId, 10),
+      },
+      data: payload,
+    })
+    return h.response().code(204)
+  } catch (err) {
+    console.log(err)
+    return h.response().code(500)
+  }
 }
