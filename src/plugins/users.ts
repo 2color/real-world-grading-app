@@ -4,10 +4,8 @@ import Joi, { options } from '@hapi/joi'
 // plugin to instantiate Prisma Client
 const usersPlugin = {
   name: 'app/users',
+  dependencies: ['prisma'],
   register: async function (server: Hapi.Server) {
-    // Define depenedency on prisma
-    server.dependency(['prisma'])
-
     server.route([
       {
         method: 'GET',
