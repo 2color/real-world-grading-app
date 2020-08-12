@@ -24,6 +24,7 @@
     "dev": "ts-node-dev --respawn ./src/index.ts",
     "seed": "ts-node ./src/seed.ts",
     "test": "jest",
+    "compile": "tsc",
     "postgres:start": "docker-compose up -d",
     "migrate:save": "prisma migrate --experimental save",
     "migrate:up": "prisma migrate --experimental up --auto-approve --create-db",
