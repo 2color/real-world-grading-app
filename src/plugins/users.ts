@@ -14,7 +14,7 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.string().pattern(/^[0-9]+$/),
+              userId: Joi.number(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -26,10 +26,10 @@ const usersPlugin = {
       {
         method: 'POST',
         path: '/users',
-        handler: registerHandler,
+        handler: createUserHandler,
         options: {
           validate: {
-            payload: userInputValidator,
+            payload: createUserValidator,
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
               throw err
@@ -44,7 +44,7 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.string().pattern(/^[0-9]+$/),
+              userId: Joi.number(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -60,9 +60,9 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.string().pattern(/^[0-9]+$/),
+              userId: Joi.number(),
             }),
-            payload: userInputValidator,
+            payload: updateUserValidator,
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
               throw err
@@ -77,9 +77,20 @@ const usersPlugin = {
 export default usersPlugin
 
 const userInputValidator = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  email: Joi.string().email().required(),
+  firstName: Joi.string().alter({
+    create: (schema) => schema.required(),
+    update: (schema) => schema.optional(),
+  }),
+  lastName: Joi.string().alter({
+    create: (schema) => schema.required(),
+    update: (schema) => schema.optional(),
+  }),
+  email: Joi.string()
+    .email()
+    .alter({
+      create: (schema) => schema.required(),
+      update: (schema) => schema.optional(),
+    }),
   social: Joi.object({
     facebook: Joi.string().optional(),
     twitter: Joi.string().optional(),
@@ -87,6 +98,9 @@ const userInputValidator = Joi.object({
     website: Joi.string().optional(),
   }).optional(),
 })
+
+const createUserValidator = userInputValidator.tailor('create')
+const updateUserValidator = userInputValidator.tailor('update')
 
 interface UserInput {
   firstName: string
@@ -100,14 +114,15 @@ interface UserInput {
   }
 }
 
+
 async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
-  const userId = request.params.userId as string
+  const userId = parseInt(request.params.userId, 10)
 
   try {
     const user = await prisma.user.findOne({
       where: {
-        id: parseInt(userId, 10),
+        id: userId,
       },
     })
     if (!user) {
@@ -121,7 +136,7 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   }
 }
 
-async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function createUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
   const payload = request.payload as UserInput
 
@@ -131,27 +146,31 @@ async function registerHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         firstName: payload.firstName,
         lastName: payload.lastName,
         email: payload.email,
-        // social: JSON.stringify(payload.social),
         social: payload.social,
       },
       select: {
         id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        social: true,
       },
     })
-    return h.response(createdUser).code(200)
+    return h.response(createdUser).code(201)
   } catch (err) {
     console.log(err)
+    return h.response().code(500)
   }
 }
 
 async function deleteHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
-  const userId = request.params.userId as string
+  const userId = parseInt(request.params.userId, 10)
 
   try {
     await prisma.user.delete({
       where: {
-        id: parseInt(userId, 10),
+        id: userId,
       },
     })
     return h.response().code(204)
@@ -163,17 +182,17 @@ async function deleteHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
 
 async function updateHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
-  const userId = request.params.userId as string
-  const payload = request.payload as UserInput
+  const userId = parseInt(request.params.userId, 10)
+  const payload = request.payload as Partial<UserInput>
 
   try {
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: {
-        id: parseInt(userId, 10),
+        id: userId,
       },
       data: payload,
     })
-    return h.response().code(204)
+    return h.response(updatedUser).code(200)
   } catch (err) {
     console.log(err)
     return h.response().code(500)
