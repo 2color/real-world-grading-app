@@ -12,7 +12,7 @@ describe('Status plugin', () => {
     await server.stop()
   })
 
-  test('', async () => {
+  test('status endpoint returns 200', async () => {
     const res = await server.inject({
       method: 'GET',
       url: '/',
