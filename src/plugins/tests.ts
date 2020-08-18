@@ -14,7 +14,7 @@ const testsPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              testId: Joi.number(),
+              testId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -30,7 +30,7 @@ const testsPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              courseId: Joi.number(),
+              courseId: Joi.number().integer(),
             }),
             payload: createTestValidator,
             failAction: (request, h, err) => {
@@ -47,7 +47,7 @@ const testsPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              testId: Joi.number(),
+              testId: Joi.number().integer(),
             }),
             payload: updateTestValidator,
             failAction: (request, h, err) => {
@@ -64,7 +64,7 @@ const testsPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              testId: Joi.number(),
+              testId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706

@@ -14,7 +14,7 @@ const coursesPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              courseId: Joi.number(),
+              courseId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -49,7 +49,7 @@ const coursesPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              courseId: Joi.number(),
+              courseId: Joi.number().integer(),
             }),
             payload: updateCourseValidator,
             failAction: (request, h, err) => {
@@ -66,7 +66,7 @@ const coursesPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              courseId: Joi.number(),
+              courseId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706

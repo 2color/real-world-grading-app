@@ -14,7 +14,7 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.number(),
+              userId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -44,7 +44,7 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.number(),
+              userId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -60,7 +60,7 @@ const usersPlugin = {
         options: {
           validate: {
             params: Joi.object({
-              userId: Joi.number(),
+              userId: Joi.number().integer(),
             }),
             payload: updateUserValidator,
             failAction: (request, h, err) => {
