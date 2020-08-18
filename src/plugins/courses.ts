@@ -44,22 +44,6 @@ const coursesPlugin = {
         },
       },
       {
-        method: 'DELETE',
-        path: '/courses/{courseId}',
-        handler: deleteCourseHandler,
-        options: {
-          validate: {
-            params: Joi.object({
-              courseId: Joi.number(),
-            }),
-            failAction: (request, h, err) => {
-              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
-              throw err
-            },
-          },
-        },
-      },
-      {
         method: 'PUT',
         path: '/courses/{courseId}',
         handler: updateCourseHandler,
@@ -69,6 +53,22 @@ const coursesPlugin = {
               courseId: Joi.number(),
             }),
             payload: updateCourseValidator,
+            failAction: (request, h, err) => {
+              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
+              throw err
+            },
+          },
+        },
+      },
+      {
+        method: 'DELETE',
+        path: '/courses/{courseId}',
+        handler: deleteCourseHandler,
+        options: {
+          validate: {
+            params: Joi.object({
+              courseId: Joi.number(),
+            }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
               throw err
@@ -168,26 +168,6 @@ async function createCourseHandler(
   }
 }
 
-async function deleteCourseHandler(
-  request: Hapi.Request,
-  h: Hapi.ResponseToolkit,
-) {
-  const { prisma } = request.server.app
-  const courseId = parseInt(request.params.courseId, 10)
-
-  try {
-    await prisma.course.delete({
-      where: {
-        id: courseId,
-      },
-    })
-    return h.response().code(204)
-  } catch (err) {
-    console.log(err)
-    return Boom.badImplementation('failed to delete course')
-  }
-}
-
 async function updateCourseHandler(
   request: Hapi.Request,
   h: Hapi.ResponseToolkit,
@@ -207,5 +187,25 @@ async function updateCourseHandler(
   } catch (err) {
     console.log(err)
     return Boom.badImplementation('failed to update course')
+  }
+}
+
+async function deleteCourseHandler(
+  request: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+) {
+  const { prisma } = request.server.app
+  const courseId = parseInt(request.params.courseId, 10)
+
+  try {
+    await prisma.course.delete({
+      where: {
+        id: courseId,
+      },
+    })
+    return h.response().code(204)
+  } catch (err) {
+    console.log(err)
+    return Boom.badImplementation('failed to delete course')
   }
 }
