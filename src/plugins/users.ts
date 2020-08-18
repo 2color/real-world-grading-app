@@ -1,5 +1,6 @@
 import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
+import Boom from '@hapi/boom'
 
 // plugin to instantiate Prisma Client
 const usersPlugin = {
@@ -40,7 +41,7 @@ const usersPlugin = {
       {
         method: 'DELETE',
         path: '/users/{userId}',
-        handler: deleteHandler,
+        handler: deleteUserHandler,
         options: {
           validate: {
             params: Joi.object({
@@ -56,7 +57,7 @@ const usersPlugin = {
       {
         method: 'PUT',
         path: '/users/{userId}',
-        handler: updateHandler,
+        handler: updateUserHandler,
         options: {
           validate: {
             params: Joi.object({
@@ -132,7 +133,7 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     }
   } catch (err) {
     console.log(err)
-    return h.response().code(500)
+    return Boom.badImplementation('failed to get user')
   }
 }
 
@@ -159,11 +160,11 @@ async function createUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit)
     return h.response(createdUser).code(201)
   } catch (err) {
     console.log(err)
-    return h.response().code(500)
+    return Boom.badImplementation('failed to create user')
   }
 }
 
-async function deleteHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function deleteUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
   const userId = parseInt(request.params.userId, 10)
 
@@ -176,11 +177,11 @@ async function deleteHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     return h.response().code(204)
   } catch (err) {
     console.log(err)
-    return h.response().code(500)
+    return Boom.badImplementation('failed to delete user')
   }
 }
 
-async function updateHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function updateUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
   const userId = parseInt(request.params.userId, 10)
   const payload = request.payload as Partial<UserInput>
@@ -195,6 +196,6 @@ async function updateHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     return h.response(updatedUser).code(200)
   } catch (err) {
     console.log(err)
-    return h.response().code(500)
+    return Boom.badImplementation('failed to update user')
   }
 }
