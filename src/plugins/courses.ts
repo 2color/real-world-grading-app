@@ -2,7 +2,6 @@ import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
 
-// plugin to instantiate Prisma Client
 const coursesPlugin = {
   name: 'app/courses',
   dependencies: ['prisma'],
