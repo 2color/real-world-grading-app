@@ -2,7 +2,7 @@ import { createServer } from '../src/server'
 import Hapi from '@hapi/hapi'
 import { add } from 'date-fns'
 
-describe('/tests endpoints', () => {
+describe('tests endpoints', () => {
   let server: Hapi.Server
 
   beforeAll(async () => {

@@ -176,13 +176,13 @@ async function updateTestHandler(
   const payload = request.payload as Partial<TestInput>
 
   try {
-    const updatedUser = await prisma.test.update({
+    const updatedTest = await prisma.test.update({
       where: {
         id: testId,
       },
       data: payload,
     })
-    return h.response(updatedUser).code(200)
+    return h.response(updatedTest).code(200)
   } catch (err) {
     console.log(err)
     return Boom.badImplementation('failed to update test')

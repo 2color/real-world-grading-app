@@ -176,13 +176,13 @@ async function updateCourseHandler(
   const payload = request.payload as Partial<CourseInput>
 
   try {
-    const updatedUser = await prisma.course.update({
+    const updatedCourse = await prisma.course.update({
       where: {
         id: courseId,
       },
       data: payload,
     })
-    return h.response(updatedUser).code(200)
+    return h.response(updatedCourse).code(200)
   } catch (err) {
     console.log(err)
     return Boom.badImplementation('failed to update course')

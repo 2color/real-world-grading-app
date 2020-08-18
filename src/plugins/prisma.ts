@@ -25,7 +25,7 @@ const prismaPlugin: Hapi.Plugin<null> = {
     server.ext({
       type: 'onPostStop',
       method: async (server: Hapi.Server) => {
-        server.app.prisma.disconnect()
+        server.app.prisma.$disconnect()
       },
     })
   },

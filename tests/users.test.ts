@@ -1,7 +1,7 @@
 import { createServer } from '../src/server'
 import Hapi from '@hapi/hapi'
 
-describe('/users endpoints', () => {
+describe('users endpoints', () => {
   let server: Hapi.Server
 
   beforeAll(async () => {
