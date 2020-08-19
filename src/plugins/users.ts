@@ -1,12 +1,26 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi, { object } from '@hapi/joi'
 import Boom from '@hapi/boom'
+import { UserRole } from '@prisma/client'
 
 const usersPlugin = {
   name: 'app/users',
   dependencies: ['prisma'],
   register: async function (server: Hapi.Server) {
     server.route([
+      {
+        method: 'GET',
+        path: '/users',
+        handler: getUsersHandler,
+        options: {
+          validate: {
+            failAction: (request, h, err) => {
+              // show validation errors to user https://github.com/hapijs/hapi/issues/3706
+              throw err
+            },
+          },
+        },
+      },
       {
         method: 'GET',
         path: '/users/{userId}',
@@ -114,6 +128,25 @@ interface UserInput {
   }
 }
 
+async function getUsersHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const { prisma } = request.server.app
+
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        social: true,
+      },
+    })
+    return h.response(users).code(200)
+  } catch (err) {
+    console.log(err)
+    return Boom.badImplementation('failed to get users')
+  }
+}
 
 async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const { prisma } = request.server.app
@@ -136,7 +169,10 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   }
 }
 
-async function createUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function createUserHandler(
+  request: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+) {
   const { prisma } = request.server.app
   const payload = request.payload as UserInput
 
@@ -163,7 +199,10 @@ async function createUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit)
   }
 }
 
-async function deleteUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function deleteUserHandler(
+  request: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+) {
   const { prisma } = request.server.app
   const userId = parseInt(request.params.userId, 10)
 
@@ -180,7 +219,10 @@ async function deleteUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit)
   }
 }
 
-async function updateUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+async function updateUserHandler(
+  request: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+) {
   const { prisma } = request.server.app
   const userId = parseInt(request.params.userId, 10)
   const payload = request.payload as Partial<UserInput>

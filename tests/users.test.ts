@@ -61,6 +61,18 @@ describe('users endpoints', () => {
     expect(response.statusCode).toEqual(404)
   })
 
+  test('get users returns array of users', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: `/users`,
+    })
+    expect(response.statusCode).toEqual(200)
+    const users = JSON.parse(response.payload)
+
+    expect(Array.isArray(users)).toBeTruthy()
+    expect(users[0]?.id).toBeTruthy()
+  })
+
   test('get user returns user', async () => {
     const response = await server.inject({
       method: 'GET',
