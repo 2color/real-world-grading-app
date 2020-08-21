@@ -7,7 +7,9 @@
     "@hapi/hapi": "^19.2.0",
     "@hapi/joi": "^17.1.1",
     "@prisma/client": "2.4.1",
+    "@sendgrid/mail": "^7.2.4",
     "date-fns": "^2.15.0",
+    "dotenv": "^8.2.0",
     "hapi-auth-jwt2": "^10.1.0",
     "jsonwebtoken": "^8.5.1"
   },

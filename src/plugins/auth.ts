@@ -151,7 +151,7 @@ const validateAPIToken = async (
  * Generates a short lived verification token and sends an email
  */
 async function loginHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-  const { prisma, sendEmail } = request.server.app
+  const { prisma, sendEmailToken } = request.server.app
   const { email } = request.payload as LoginInput
   const emailToken = generateEmailToken()
   const tokenExpiration = add(new Date(), {
@@ -178,7 +178,7 @@ async function loginHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
       },
     })
 
-    await sendEmail(email, emailToken)
+    await sendEmailToken(email, emailToken)
     return h.response().code(200)
   } catch (error) {
     return Boom.badImplementation(error.message)

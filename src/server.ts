@@ -9,6 +9,9 @@ import coursesPlugin from './plugins/courses'
 import testsPlugin from './plugins/tests'
 import authPlugin from './plugins/auth'
 import testResultsPlugin from './plugins/test-results'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const server: Hapi.Server = Hapi.server({
   port: process.env.PORT || 3000,
