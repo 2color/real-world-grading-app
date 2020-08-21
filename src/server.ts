@@ -1,10 +1,13 @@
 import Hapi from '@hapi/hapi'
+import hapiAuthJWT from 'hapi-auth-jwt2'
 import prismaPlugin from './plugins/prisma'
+import emailPlugin from './plugins/email'
 import usersPlugin from './plugins/users'
 import usersEnrollmentPlugin from './plugins/users-enrollment'
 import statusPlugin from './plugins/status'
 import coursesPlugin from './plugins/courses'
 import testsPlugin from './plugins/tests'
+import authPlugin from './plugins/auth'
 import testResultsPlugin from './plugins/test-results'
 
 const server: Hapi.Server = Hapi.server({
@@ -14,13 +17,16 @@ const server: Hapi.Server = Hapi.server({
 
 export async function createServer(): Promise<Hapi.Server> {
   await server.register([
+    hapiAuthJWT,
+    authPlugin,
+    prismaPlugin,
+    emailPlugin,
     statusPlugin,
     usersPlugin,
     usersEnrollmentPlugin,
     coursesPlugin,
     testsPlugin,
     testResultsPlugin,
-    prismaPlugin,
   ])
   await server.initialize()
 

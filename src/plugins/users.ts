@@ -1,7 +1,6 @@
 import Hapi from '@hapi/hapi'
-import Joi, { object } from '@hapi/joi'
+import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
-import { UserRole } from '@prisma/client'
 
 const usersPlugin = {
   name: 'app/users',

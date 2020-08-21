@@ -7,13 +7,16 @@
     "@hapi/hapi": "^19.2.0",
     "@hapi/joi": "^17.1.1",
     "@prisma/client": "2.4.1",
-    "date-fns": "^2.15.0"
+    "date-fns": "^2.15.0",
+    "hapi-auth-jwt2": "^10.1.0",
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@prisma/cli": "2.4.1",
     "@types/hapi__hapi": "^19.0.4",
     "@types/hapi__joi": "^17.1.4",
     "@types/jest": "^26.0.9",
+    "@types/jsonwebtoken": "^8.5.0",
     "jest": "^26.3.0",
     "ts-jest": "^26.2.0",
     "ts-node": "8.10.2",
