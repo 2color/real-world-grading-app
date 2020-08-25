@@ -1,6 +1,8 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
-import Boom from '@hapi/boom'
+import Joi, { required } from '@hapi/joi'
+import Boom, { boomify } from '@hapi/boom'
+import { API_AUTH_STATEGY } from './auth'
+import { UserRole } from '@prisma/client'
 
 const coursesPlugin = {
   name: 'app/courses',
@@ -12,6 +14,10 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: getCourseHandler,
         options: {
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               courseId: Joi.number().integer(),
@@ -27,12 +33,22 @@ const coursesPlugin = {
         method: 'GET',
         path: '/courses',
         handler: getCoursesHandler,
+        options: {
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
+        },
       },
       {
         method: 'POST',
         path: '/courses',
         handler: createCourseHandler,
         options: {
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             payload: createCourseValidator,
             failAction: (request, h, err) => {
@@ -47,6 +63,11 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: updateCourseHandler,
         options: {
+          pre: [canModifyCourse],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               courseId: Joi.number().integer(),
@@ -64,6 +85,11 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: deleteCourseHandler,
         options: {
+          pre: [canModifyCourse],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               courseId: Joi.number().integer(),
@@ -152,12 +178,24 @@ async function createCourseHandler(
 ) {
   const { prisma } = request.server.app
   const payload = request.payload as CourseInput
+  const { userId } = request.auth.credentials
 
   try {
+    // when creating a course make the authenticated user a teacher of the course
     const createdCourse = await prisma.course.create({
       data: {
         name: payload.name,
         courseDetails: payload.courseDetails,
+        members: {
+          create: {
+            role: 'TEACHER',
+            user: {
+              connect: {
+                id: userId,
+              },
+            },
+          },
+        },
       },
     })
     return h.response(createdCourse).code(201)
@@ -165,6 +203,31 @@ async function createCourseHandler(
     console.log(err)
     return Boom.badImplementation('failed to create course')
   }
+}
+
+// Pre function to check if user is the teacher of a course and can modify it
+async function canModifyCourse(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  const { userId, isAdmin } = request.auth.credentials
+
+  if (isAdmin) {
+    return h.continue
+  }
+
+  const courseId = parseInt(request.params.courseId, 10)
+  const { prisma } = request.server.app
+  const enrollment = await prisma.courseEnrollment.findOne({
+    where: {
+      userId_courseId: {
+        courseId: courseId,
+        userId: userId,
+      },
+    },
+  })
+  // If the user is not a teacher of the course, deny access
+  if (!enrollment || enrollment?.role !== UserRole.TEACHER) {
+    throw Boom.forbidden()
+  }
+  return h.continue
 }
 
 async function updateCourseHandler(
@@ -197,11 +260,19 @@ async function deleteCourseHandler(
   const courseId = parseInt(request.params.courseId, 10)
 
   try {
-    await prisma.course.delete({
-      where: {
-        id: courseId,
-      },
-    })
+    // Delete all enrollments
+    await prisma.$transaction([
+      prisma.courseEnrollment.deleteMany({
+        where: {
+          courseId: courseId,
+        },
+      }),
+      prisma.course.delete({
+        where: {
+          id: courseId,
+        },
+      }),
+    ])
     return h.response().code(204)
   } catch (err) {
     console.log(err)
