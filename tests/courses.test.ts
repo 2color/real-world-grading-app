@@ -1,11 +1,19 @@
 import { createServer } from '../src/server'
-import Hapi from '@hapi/hapi'
+import Hapi, { AuthCredentials } from '@hapi/hapi'
+import { createUserCredentials } from './test-helpers'
+import { API_AUTH_STATEGY } from '../src/plugins/auth'
 
 describe('courses endpoints', () => {
   let server: Hapi.Server
+  let testUserCredentials: AuthCredentials
+  let testAdminCredentials: AuthCredentials
 
   beforeAll(async () => {
     server = await createServer()
+
+    // Create a test user and admin and get the credentials object for them
+    testUserCredentials = await createUserCredentials(server.app.prisma, false)
+    testAdminCredentials = await createUserCredentials(server.app.prisma, true)
   })
 
   afterAll(async () => {
@@ -18,9 +26,14 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/courses',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         name: 'Modern Backend with TypeScript, PostgreSQL, and Prisma',
-        courseDetails: 'Explore and demonstrate different patterns, problems, and architectures for a modern backend by solving a concrete problem: **a grading system for online courses.**'
+        courseDetails:
+          'Explore and demonstrate different patterns, problems, and architectures for a modern backend by solving a concrete problem: **a grading system for online courses.**',
       },
     })
 
@@ -30,12 +43,29 @@ describe('courses endpoints', () => {
     expect(typeof courseId === 'number').toBeTruthy()
   })
 
-  test('create course validation', async () => {
+  test('create course auth', async () => {
     const response = await server.inject({
       method: 'POST',
       url: '/courses',
       payload: {
-        name: 'name'
+        name: 'Modern Backend with TypeScript, PostgreSQL, and Prisma',
+        courseDetails:
+          'Explore and demonstrate different patterns, problems, and architectures for a modern backend by solving a concrete problem: **a grading system for online courses.**',
+      },
+    })
+    expect(response.statusCode).toEqual(401)
+  })
+
+  test('create course validation', async () => {
+    const response = await server.inject({
+      method: 'POST',
+      url: '/courses',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
+      payload: {
+        name: 'name',
       },
     })
 
@@ -46,6 +76,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/courses/9999',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
 
     expect(response.statusCode).toEqual(404)
@@ -55,6 +89,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/courses/${courseId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const course = JSON.parse(response.payload)
@@ -66,6 +104,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/courses`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const course = JSON.parse(response.payload)
@@ -79,6 +121,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/courses/a123',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -87,6 +133,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'PUT',
       url: `/courses/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -97,6 +147,29 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'PUT',
       url: `/courses/${courseId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
+      payload: {
+        name: updatedName,
+      },
+    })
+    expect(response.statusCode).toEqual(200)
+    const course = JSON.parse(response.payload)
+    expect(course.name).toEqual(updatedName)
+  })
+
+  test('update course as an admin', async () => {
+    const updatedName = 'test-UPDATED-BY-ADMIN'
+
+    const response = await server.inject({
+      method: 'PUT',
+      url: `/courses/${courseId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
       payload: {
         name: updatedName,
       },
@@ -110,6 +183,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/courses/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -118,6 +195,10 @@ describe('courses endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/courses/${courseId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(204)
   })
