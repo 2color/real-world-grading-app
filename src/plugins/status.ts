@@ -9,6 +9,9 @@ const plugin: Hapi.Plugin<undefined> = {
       path: '/',
       handler: (_, h: Hapi.ResponseToolkit) =>
         h.response({ up: true }).code(200),
+      options: {
+        auth: false,
+      },
     })
   },
 }
