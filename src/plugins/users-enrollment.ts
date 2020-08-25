@@ -2,6 +2,8 @@ import Hapi from '@hapi/hapi'
 import Joi, { object } from '@hapi/joi'
 import Boom from '@hapi/boom'
 import { UserRole } from '@prisma/client'
+import { API_AUTH_STATEGY } from './auth'
+import { isRequestedUserOrAdmin } from '../auth-helpers'
 
 const usersEnrollmentPlugin = {
   name: 'app/usersEnrollment',
@@ -13,6 +15,11 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses',
         handler: getUserEnrollmentsHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -29,6 +36,12 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses',
         handler: createUserEnrollmentHandler,
         options: {
+          // TODO: ensure that only a teacher of a course can enroll other users as teachers
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -50,6 +63,11 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses/{courseId}',
         handler: deleteUserEnrollmentHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -148,6 +166,8 @@ async function deleteUserEnrollmentHandler(
     return h.response().code(204)
   } catch (err) {
     console.log(err)
-    return Boom.badImplementation(`failed to delete the user: ${userId} enrollment in course: ${courseId} `)
+    return Boom.badImplementation(
+      `failed to delete the user: ${userId} enrollment in course: ${courseId} `,
+    )
   }
 }

@@ -1,6 +1,12 @@
 import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
+import { API_AUTH_STATEGY } from './auth'
+import {
+  isRequestedUserOrAdmin,
+  isTeacherOfTestOrAdmin,
+  isGraderOfTestResultOrAdmin,
+} from '../auth-helpers'
 
 const testResultsPlugin = {
   name: 'app/testResults',
@@ -9,12 +15,17 @@ const testResultsPlugin = {
     server.route([
       {
         method: 'GET',
-        path: '/courses/tests/{testId}/test-results',
-        handler: getTestResultsHandler,
+        path: '/users/{userId}/test-results',
+        handler: getUserTestResultsHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
-              testId: Joi.number().integer().integer(),
+              userId: Joi.number().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -25,12 +36,17 @@ const testResultsPlugin = {
       },
       {
         method: 'GET',
-        path: '/users/{userId}/test-results',
-        handler: getUserTestResultsHandler,
+        path: '/courses/tests/{testId}/test-results',
+        handler: getTestResultsHandler,
         options: {
+          pre: [isTeacherOfTestOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
-              userId: Joi.number().integer(),
+              testId: Joi.number().integer().integer(),
             }),
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -44,6 +60,11 @@ const testResultsPlugin = {
         path: '/courses/tests/{testId}/test-results',
         handler: createTestResultsHandler,
         options: {
+          pre: [isTeacherOfTestOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testId: Joi.number().integer(),
@@ -61,6 +82,11 @@ const testResultsPlugin = {
         path: '/courses/tests/test-results/{testResultId}',
         handler: updateTestResultHandler,
         options: {
+          pre: [isGraderOfTestResultOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testResultId: Joi.number().integer(),
@@ -78,6 +104,11 @@ const testResultsPlugin = {
         path: '/courses/tests/test-results/{testResultId}',
         handler: deleteTestResultHandler,
         options: {
+          pre: [isGraderOfTestResultOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testResultId: Joi.number().integer(),

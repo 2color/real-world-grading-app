@@ -2,7 +2,7 @@ import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
 import jwt from 'jsonwebtoken'
-import { TokenType } from '@prisma/client'
+import { TokenType, UserRole } from '@prisma/client'
 import { add, compareAsc } from 'date-fns'
 
 declare module '@hapi/hapi' {
@@ -10,6 +10,8 @@ declare module '@hapi/hapi' {
     userId: number
     tokenId: number
     isAdmin: boolean
+    // 👇 The courseIds that a user is a teacher of, thereby granting him permissions to change entitites
+    teacherOf: number[]
   }
 }
 
@@ -143,6 +145,16 @@ const validateAPIToken = async (
     }
 
     if (fetchedToken.valid) {
+      const teacherOf = await prisma.courseEnrollment.findMany({
+        where: {
+          userId: fetchedToken.userId,
+          role: UserRole.TEACHER,
+        },
+        select: {
+          courseId: true,
+        },
+      })
+
       // The token is valid. Pass the token payload (in `decoded`), userId, and isAdmin to `credentials`
       // which is available in route handlers via request.auth.credentials
       return {
@@ -151,6 +163,8 @@ const validateAPIToken = async (
           ...decoded,
           userId: fetchedToken.userId,
           isAdmin: fetchedToken.user.isAdmin,
+          // convert teacherOf into an array of courseIds
+          teacherOf: teacherOf.map(({ courseId }) => courseId),
         },
       }
     }

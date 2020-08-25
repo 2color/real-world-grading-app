@@ -1,6 +1,11 @@
 import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
+import { API_AUTH_STATEGY } from './auth'
+import {
+  isTeacherOfCourseOrAdmin,
+  isTeacherOfTestOrAdmin,
+} from '../auth-helpers'
 
 const testsPlugin = {
   name: 'app/tests',
@@ -12,6 +17,10 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: getTestHandler,
         options: {
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testId: Joi.number().integer(),
@@ -28,6 +37,11 @@ const testsPlugin = {
         path: '/courses/{courseId}/tests',
         handler: createTestHandler,
         options: {
+          pre: [isTeacherOfCourseOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               courseId: Joi.number().integer(),
@@ -45,6 +59,11 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: updateTestHandler,
         options: {
+          pre: [isTeacherOfTestOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testId: Joi.number().integer(),
@@ -62,6 +81,11 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: deleteTestHandler,
         options: {
+          pre: [isTeacherOfTestOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               testId: Joi.number().integer(),
@@ -127,7 +151,6 @@ async function createTestHandler(
   const payload = request.payload as TestInput
   const courseId = parseInt(request.params.courseId, 10)
 
-
   try {
     const createdTest = await prisma.test.create({
       data: {
@@ -135,9 +158,9 @@ async function createTestHandler(
         date: payload.date,
         course: {
           connect: {
-            id: courseId
-          }
-        }
+            id: courseId,
+          },
+        },
       },
     })
     return h.response(createdTest).code(201)

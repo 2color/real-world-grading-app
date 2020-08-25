@@ -1,50 +1,24 @@
 import { createServer } from '../src/server'
-import Hapi from '@hapi/hapi'
+import Hapi, { AuthCredentials } from '@hapi/hapi'
+import { createCourse, createUserCredentials } from './test-helpers'
+import { API_AUTH_STATEGY } from '../src/plugins/auth'
 
 describe('user specific courses endpoints', () => {
   let server: Hapi.Server
+  let teacherCredentials: AuthCredentials
+  let studentCredentials: AuthCredentials
   let studentId: number
   let teacherId: number
   let courseId: number
 
   beforeAll(async () => {
     server = await createServer()
-    // create two users and a course to test enrollment
-    const studentResponse = await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        firstName: 'test-first-name',
-        lastName: 'test-last-name',
-        email: `test-student-${Date.now()}@prisma.io`
-      },
-    })
-    expect(studentResponse.statusCode).toEqual(201)
-    studentId = JSON.parse(studentResponse.payload)?.id
-    
-    const teacherResponse = await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        firstName: 'test-first-name',
-        lastName: 'test-last-name',
-        email: `test-teacher-${Date.now()}@prisma.io`
-      },
-    })
-    expect(teacherResponse.statusCode).toEqual(201)
-    teacherId = JSON.parse(teacherResponse.payload)?.id
 
-    const courseResponse = await server.inject({
-      method: 'POST',
-      url: '/courses',
-      payload: {
-        name: 'Modern Backend with TypeScript, PostgreSQL, and Prisma',
-        courseDetails: 'Explore and demonstrate different patterns, problems, and architectures for a modern backend by solving a concrete problem: **a grading system for online courses.**'
-      },
-    })
-
-    expect(courseResponse.statusCode).toEqual(201)
-    courseId = JSON.parse(courseResponse.payload)?.id
+    studentCredentials = await createUserCredentials(server.app.prisma, false)
+    teacherCredentials = await createUserCredentials(server.app.prisma, false)
+    courseId = await createCourse(server.app.prisma)
+    studentId = studentCredentials.userId
+    teacherId = teacherCredentials.userId
   })
 
   afterAll(async () => {
@@ -52,13 +26,16 @@ describe('user specific courses endpoints', () => {
   })
 
   test(`add a user as a student to a course`, async () => {
-
     const response = await server.inject({
       method: 'POST',
       url: `/users/${studentId}/courses`,
-      payload: { 
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: studentCredentials,
+      },
+      payload: {
         courseId: courseId,
-        role: 'STUDENT'
+        role: 'STUDENT',
       },
     })
     expect(response.statusCode).toEqual(201)
@@ -68,14 +45,17 @@ describe('user specific courses endpoints', () => {
     expect(userCourse.courseId).toEqual(courseId)
   })
 
-
   test('add a user as a teacher to a course', async () => {
     const response = await server.inject({
       method: 'POST',
       url: `/users/${teacherId}/courses`,
-      payload: { 
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: teacherCredentials,
+      },
+      payload: {
         courseId: courseId,
-        role: 'TEACHER'
+        role: 'TEACHER',
       },
     })
     expect(response.statusCode).toEqual(201)
@@ -89,9 +69,13 @@ describe('user specific courses endpoints', () => {
     const response = await server.inject({
       method: 'POST',
       url: `/users/${teacherId}/courses`,
-      payload: { 
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: teacherCredentials,
+      },
+      payload: {
         courseId: courseId,
-        role: 'NONEXISTANT'
+        role: 'NONEXISTANT',
       },
     })
     expect(response.statusCode).toEqual(400)
@@ -101,6 +85,10 @@ describe('user specific courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/users/${studentId}/courses`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: studentCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const userCourses = JSON.parse(response.payload)
@@ -111,6 +99,10 @@ describe('user specific courses endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/users/${studentId}/courses/${courseId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: studentCredentials,
+      },
     })
     expect(response.statusCode).toEqual(204)
   })
@@ -119,6 +111,10 @@ describe('user specific courses endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/users/${studentId}/courses`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: studentCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const userCourses = JSON.parse(response.payload)

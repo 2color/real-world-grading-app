@@ -1,11 +1,18 @@
 import { createServer } from '../src/server'
-import Hapi from '@hapi/hapi'
+import Hapi, { AuthCredentials } from '@hapi/hapi'
+import { createUserCredentials } from './test-helpers'
+import { API_AUTH_STATEGY } from '../src/plugins/auth'
 
 describe('users endpoints', () => {
   let server: Hapi.Server
+  let testUserCredentials: AuthCredentials
+  let testAdminCredentials: AuthCredentials
 
   beforeAll(async () => {
     server = await createServer()
+    // Create a test user and admin and get the credentials object for them
+    testUserCredentials = await createUserCredentials(server.app.prisma, false)
+    testAdminCredentials = await createUserCredentials(server.app.prisma, true)
   })
 
   afterAll(async () => {
@@ -18,6 +25,10 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/users',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
       payload: {
         firstName: 'test-first-name',
         lastName: 'test-last-name',
@@ -39,6 +50,10 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/users',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
       payload: {
         lastName: 'test-last-name',
         email: `test-${Date.now()}@prisma.io`,
@@ -56,6 +71,10 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/users/9999',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
     })
 
     expect(response.statusCode).toEqual(404)
@@ -65,6 +84,10 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/users`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const users = JSON.parse(response.payload)
@@ -76,18 +99,26 @@ describe('users endpoints', () => {
   test('get user returns user', async () => {
     const response = await server.inject({
       method: 'GET',
-      url: `/users/${userId}`,
+      url: `/users/${testUserCredentials.userId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const user = JSON.parse(response.payload)
 
-    expect(user.id).toBe(userId)
+    expect(user.id).toBe(testUserCredentials.userId)
   })
 
   test('get user fails with invalid id', async () => {
     const response = await server.inject({
       method: 'GET',
       url: '/users/a123',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -96,17 +127,25 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'PUT',
       url: `/users/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
 
-  test('update user', async () => {
+  test('update user - authenticated user updates his profile', async () => {
     const updatedFirstName = 'test-first-name-UPDATED'
     const updatedLastName = 'test-last-name-UPDATED'
 
     const response = await server.inject({
       method: 'PUT',
-      url: `/users/${userId}`,
+      url: `/users/${testUserCredentials.userId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         firstName: updatedFirstName,
         lastName: updatedLastName,
@@ -122,14 +161,34 @@ describe('users endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/users/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
 
-  test('delete user', async () => {
+  test('delete authenticated user', async () => {
+    const response = await server.inject({
+      method: 'DELETE',
+      url: `/users/${testUserCredentials.userId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
+    })
+    expect(response.statusCode).toEqual(204)
+  })
+
+  test('delete user as an admin', async () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/users/${userId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testAdminCredentials,
+      },
     })
     expect(response.statusCode).toEqual(204)
   })

@@ -1,42 +1,56 @@
 import { createServer } from '../src/server'
-import Hapi from '@hapi/hapi'
+import Hapi, { AuthCredentials } from '@hapi/hapi'
 import { add } from 'date-fns'
+import { createUserCredentials } from './test-helpers'
+import { API_AUTH_STATEGY } from '../src/plugins/auth'
 
 describe('tests endpoints', () => {
   let server: Hapi.Server
+  let testUserCredentials: AuthCredentials
+  let testAdminCredentials: AuthCredentials
+  const weekFromNow = add(new Date(), { days: 7 })
+  let testId: number
+  let courseId: number
 
   beforeAll(async () => {
     server = await createServer()
+    // Create a test user and admin and get the credentials object for them
+    testUserCredentials = await createUserCredentials(server.app.prisma, false)
+    testAdminCredentials = await createUserCredentials(server.app.prisma, true)
   })
 
   afterAll(async () => {
     await server.stop()
   })
 
-  const weekFromNow = add(new Date(), { days: 7 })
-  let testId: number
-  let courseId: number
-
-
   test('create test', async () => {
     const courseResponse = await server.inject({
       method: 'POST',
       url: '/courses',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         name: 'Modern Backend Course',
-        courseDetails: 'Learn how to build a modern backend'
+        courseDetails: 'Learn how to build a modern backend',
       },
     })
     expect(courseResponse.statusCode).toEqual(201)
     courseId = JSON.parse(courseResponse.payload)?.id
-
+    // 👇Update the credentials as they're static in tests (not fetched automatically on request by the auth plugin)
+    testUserCredentials.teacherOf.push(courseId)
 
     const testResponse = await server.inject({
       method: 'POST',
       url: `/courses/${courseId}/tests`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         name: 'First Test',
-        date: weekFromNow.toString()
+        date: weekFromNow.toString(),
       },
     })
 
@@ -50,9 +64,13 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/courses',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         name: 'name',
-        invalidField: 'woot'
+        invalidField: 'woot',
       },
     })
 
@@ -63,6 +81,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/courses/tests/9999',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
 
     expect(response.statusCode).toEqual(404)
@@ -72,6 +94,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: `/courses/tests/${testId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(200)
     const course = JSON.parse(response.payload)
@@ -83,6 +109,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'GET',
       url: '/courses/tests/a123',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -91,6 +121,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'PUT',
       url: `/courses/tests/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -101,6 +135,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'PUT',
       url: `/courses/tests/${testId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
       payload: {
         name: updatedName,
       },
@@ -114,6 +152,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/courses/tests/aa22`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(400)
   })
@@ -122,6 +164,10 @@ describe('tests endpoints', () => {
     const response = await server.inject({
       method: 'DELETE',
       url: `/courses/tests/${testId}`,
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
     })
     expect(response.statusCode).toEqual(204)
   })

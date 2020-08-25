@@ -1,6 +1,8 @@
 import Hapi from '@hapi/hapi'
 import Joi from '@hapi/joi'
 import Boom from '@hapi/boom'
+import { API_AUTH_STATEGY } from './auth'
+import { isRequestedUserOrAdmin, isAdmin } from '../auth-helpers'
 
 const usersPlugin = {
   name: 'app/users',
@@ -12,6 +14,11 @@ const usersPlugin = {
         path: '/users',
         handler: getUsersHandler,
         options: {
+          pre: [isAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             failAction: (request, h, err) => {
               // show validation errors to user https://github.com/hapijs/hapi/issues/3706
@@ -25,6 +32,11 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: getUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -41,6 +53,11 @@ const usersPlugin = {
         path: '/users',
         handler: createUserHandler,
         options: {
+          pre: [isAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             payload: createUserValidator,
             failAction: (request, h, err) => {
@@ -55,6 +72,11 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: deleteUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -71,6 +93,11 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: updateUserHandler,
         options: {
+          pre: [isRequestedUserOrAdmin],
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
           validate: {
             params: Joi.object({
               userId: Joi.number().integer(),
@@ -156,6 +183,13 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
       where: {
         id: userId,
       },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        social: true,
+      },
     })
     if (!user) {
       return h.response().code(404)
@@ -206,11 +240,20 @@ async function deleteUserHandler(
   const userId = parseInt(request.params.userId, 10)
 
   try {
-    await prisma.user.delete({
-      where: {
-        id: userId,
-      },
-    })
+    // Delete all enrollments
+    await prisma.$transaction([
+      prisma.token.deleteMany({
+        where: {
+          userId: userId,
+        },
+      }),
+      prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      }),
+    ])
+
     return h.response().code(204)
   } catch (err) {
     console.log(err)

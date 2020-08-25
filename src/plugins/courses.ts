@@ -3,6 +3,7 @@ import Joi, { required } from '@hapi/joi'
 import Boom, { boomify } from '@hapi/boom'
 import { API_AUTH_STATEGY } from './auth'
 import { UserRole } from '@prisma/client'
+import { isTeacherOfCourseOrAdmin } from '../auth-helpers'
 
 const coursesPlugin = {
   name: 'app/courses',
@@ -63,7 +64,7 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: updateCourseHandler,
         options: {
-          pre: [canModifyCourse],
+          pre: [isTeacherOfCourseOrAdmin],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -85,7 +86,7 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: deleteCourseHandler,
         options: {
-          pre: [canModifyCourse],
+          pre: [isTeacherOfCourseOrAdmin],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -203,31 +204,6 @@ async function createCourseHandler(
     console.log(err)
     return Boom.badImplementation('failed to create course')
   }
-}
-
-// Pre function to check if user is the teacher of a course and can modify it
-async function canModifyCourse(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-  const { userId, isAdmin } = request.auth.credentials
-
-  if (isAdmin) {
-    return h.continue
-  }
-
-  const courseId = parseInt(request.params.courseId, 10)
-  const { prisma } = request.server.app
-  const enrollment = await prisma.courseEnrollment.findOne({
-    where: {
-      userId_courseId: {
-        courseId: courseId,
-        userId: userId,
-      },
-    },
-  })
-  // If the user is not a teacher of the course, deny access
-  if (!enrollment || enrollment?.role !== UserRole.TEACHER) {
-    throw Boom.forbidden()
-  }
-  return h.continue
 }
 
 async function updateCourseHandler(

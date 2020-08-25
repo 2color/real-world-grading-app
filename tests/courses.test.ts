@@ -40,6 +40,8 @@ describe('courses endpoints', () => {
     expect(response.statusCode).toEqual(201)
 
     courseId = JSON.parse(response.payload)?.id
+    // 👇Update the credentials as they're static in tests (not fetched automatically on request by the auth plugin)
+    testUserCredentials.teacherOf.push(courseId)
     expect(typeof courseId === 'number').toBeTruthy()
   })
 
