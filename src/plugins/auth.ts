@@ -25,14 +25,10 @@ const authPlugin: Hapi.Plugin<null> = {
       )
     }
 
-    const jwtAuthOptions = {
-      key: JWT_SECRET,
-      verifyOptions: { algorithms: [JWT_ALGORITHM] },
-    }
-
     // long lived token pesisted in the user browser
     server.auth.strategy(API_AUTH_STATEGY, 'jwt', {
-      ...jwtAuthOptions,
+      key: JWT_SECRET,
+      verifyOptions: { algorithms: [JWT_ALGORITHM] },
       validate: validateAPIToken,
     })
 
