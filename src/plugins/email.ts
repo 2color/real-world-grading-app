@@ -16,13 +16,14 @@ const emailPlugin = {
   register: async function (server: Hapi.Server) {
     if (!process.env.SENDGRID_API_KEY) {
       console.log(
-        `the SENDGRID_API_KEY env var must be set, otherwise the API won't be able to send emauls`,
+        `The SENDGRID_API_KEY env var must be set, otherwise the API won't be able to send emails.`,
+        `Using debug mode which logs the email tokens instead.`,
       )
-      return
+      server.app.sendEmailToken = debugSendEmailToken
+    } else {
+      sendgrid.setApiKey(process.env.SENDGRID_API_KEY)
+      server.app.sendEmailToken = sendEmailToken
     }
-
-    sendgrid.setApiKey(process.env.SENDGRID_API_KEY)
-    server.app.sendEmailToken = sendEmailToken
   },
 }
 
@@ -37,4 +38,8 @@ async function sendEmailToken(email: string, token: string) {
   }
 
   await sendgrid.send(msg)
+}
+
+async function debugSendEmailToken(email: string, token: string) {
+  console.log(`email token for ${email}: ${token} `)
 }
