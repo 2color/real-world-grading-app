@@ -5,6 +5,14 @@ import jwt from 'jsonwebtoken'
 import { TokenType } from '@prisma/client'
 import { add, compareAsc } from 'date-fns'
 
+declare module '@hapi/hapi' {
+  interface AuthCredentials {
+    userId: number
+    tokenId: number
+    isAdmin: boolean
+  }
+}
+
 const authPlugin: Hapi.Plugin<null> = {
   name: 'app/auth',
   dependencies: ['prisma', 'hapi-auth-jwt2'],
@@ -68,9 +76,9 @@ const authPlugin: Hapi.Plugin<null> = {
 }
 export default authPlugin
 
-const JWT_SECRET = process.env.JWT_SECRET || 'SUPER_SECRET_JWT_SECRET'
+export const API_AUTH_STATEGY = 'API'
 
-const API_AUTH_STATEGY = 'API'
+const JWT_SECRET = process.env.JWT_SECRET || 'SUPER_SECRET_JWT_SECRET'
 
 const JWT_ALGORITHM = 'HS256'
 
@@ -78,14 +86,12 @@ const EMAIL_TOKEN_EXPIRATION_MINUTES = 10
 const AUTHENTICATION_TOKEN_EXPIRATION_HOURS = 12
 
 const apiTokenSchema = Joi.object({
-  userId: Joi.number().integer().required(),
   tokenId: Joi.number().integer().required(),
   iat: Joi.any(),
   exp: Joi.any(),
 })
 
 interface APITokenPayload {
-  userId: number
   tokenId: number
   iat: string
   exp: string
@@ -107,7 +113,7 @@ const validateAPIToken = async (
   h: Hapi.ResponseToolkit,
 ) => {
   const { prisma } = request.server.app
-  const { tokenId, userId } = decoded
+  const { tokenId } = decoded
   const { error } = apiTokenSchema.validate(decoded)
 
   if (error) {
@@ -117,24 +123,36 @@ const validateAPIToken = async (
 
   try {
     // Fetch the token from DB to verify it's valid
-    const token = await prisma.token.findOne({
+    const fetchedToken = await prisma.token.findOne({
       where: {
         id: tokenId,
+      },
+      include: {
+        user: true,
       },
     })
 
     // Check if token could be found in database
-    if (!token) {
+    if (!fetchedToken) {
       return { isValid: false, errorMessage: 'Token not found' }
     }
 
     // Check token expiration
-    if (token.expiration < new Date()) {
+    if (fetchedToken.expiration < new Date()) {
       return { isValid: false, errorMessage: 'Token expired' }
     }
 
-    if (token.valid && token.userId === userId) {
-      return { isValid: true }
+    if (fetchedToken.valid) {
+      // The token is valid. Pass the token payload (in `decoded`), userId, and isAdmin to `credentials`
+      // which is available in route handlers via request.auth.credentials
+      return {
+        isValid: true,
+        credentials: {
+          ...decoded,
+          userId: fetchedToken.userId,
+          isAdmin: fetchedToken.user.isAdmin,
+        },
+      }
     }
   } catch (error) {
     request.log(['error', 'auth', 'db'], error)
@@ -235,7 +253,7 @@ async function authenticateHandler(
         },
       })
 
-      const authToken = generateApiToken(createdToken.id, createdToken.userId)
+      const authToken = generateApiToken(createdToken.id)
       return h.response().code(200).header('Authorization', authToken)
     } else {
       return Boom.unauthorized()
@@ -245,8 +263,8 @@ async function authenticateHandler(
   }
 }
 
-function generateApiToken(tokenId: number, userId: number) {
-  const jwtPayload = { userId, tokenId }
+function generateApiToken(tokenId: number) {
+  const jwtPayload = { tokenId }
 
   return jwt.sign(jwtPayload, JWT_SECRET, {
     algorithm: JWT_ALGORITHM,
