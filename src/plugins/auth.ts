@@ -235,6 +235,10 @@ async function authenticateHandler(
       return Boom.unauthorized()
     }
 
+    if (fetchedEmailToken.expiration < new Date()) {
+      return Boom.unauthorized('Token expired')
+    }
+
     // If token matches the user email passed in the payload, generate long lived API token
     if (fetchedEmailToken && fetchedEmailToken.user.email === email) {
       const tokenExpiration = add(new Date(), {
