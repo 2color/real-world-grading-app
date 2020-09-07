@@ -13,9 +13,12 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 const server: Hapi.Server = Hapi.server({
   port: process.env.PORT || 3000,
   host: process.env.HOST || 'localhost',
+  debug: isProduction ? false : { request: ['error'], log: ['error'] },
 })
 
 export async function createServer(): Promise<Hapi.Server> {
