@@ -17,7 +17,7 @@ declare module '@hapi/hapi' {
 
 const authPlugin: Hapi.Plugin<null> = {
   name: 'app/auth',
-  dependencies: ['prisma', 'hapi-auth-jwt2'],
+  dependencies: ['prisma', 'hapi-auth-jwt2', 'app/email'],
   register: async function (server: Hapi.Server) {
     if (!process.env.JWT_SECRET) {
       console.warn(
@@ -25,7 +25,6 @@ const authPlugin: Hapi.Plugin<null> = {
       )
     }
 
-    // long lived token pesisted in the user browser
     server.auth.strategy(API_AUTH_STATEGY, 'jwt', {
       key: JWT_SECRET,
       verifyOptions: { algorithms: [JWT_ALGORITHM] },
@@ -85,14 +84,10 @@ const AUTHENTICATION_TOKEN_EXPIRATION_HOURS = 12
 
 const apiTokenSchema = Joi.object({
   tokenId: Joi.number().integer().required(),
-  iat: Joi.any(),
-  exp: Joi.any(),
 })
 
 interface APITokenPayload {
   tokenId: number
-  iat: string
-  exp: string
 }
 
 interface LoginInput {
@@ -104,7 +99,7 @@ interface AuthenticateInput {
   emailToken: string
 }
 
-// Function will be called on every
+// Function will be called on every request using the auth strategy
 const validateAPIToken = async (
   decoded: APITokenPayload,
   request: Hapi.Request,
@@ -130,9 +125,9 @@ const validateAPIToken = async (
       },
     })
 
-    // Check if token could be found in database
-    if (!fetchedToken) {
-      return { isValid: false, errorMessage: 'Token not found' }
+    // Check if token could be found in database and is valid
+    if (!fetchedToken || !fetchedToken?.valid) {
+      return { isValid: false, errorMessage: 'Invalid token' }
     }
 
     // Check token expiration
@@ -140,36 +135,32 @@ const validateAPIToken = async (
       return { isValid: false, errorMessage: 'Token expired' }
     }
 
-    if (fetchedToken.valid) {
-      const teacherOf = await prisma.courseEnrollment.findMany({
-        where: {
-          userId: fetchedToken.userId,
-          role: UserRole.TEACHER,
-        },
-        select: {
-          courseId: true,
-        },
-      })
+    const teacherOf = await prisma.courseEnrollment.findMany({
+      where: {
+        userId: fetchedToken.userId,
+        role: UserRole.TEACHER,
+      },
+      select: {
+        courseId: true,
+      },
+    })
 
-      // The token is valid. Pass the token payload (in `decoded`), userId, and isAdmin to `credentials`
-      // which is available in route handlers via request.auth.credentials
-      return {
-        isValid: true,
-        credentials: {
-          ...decoded,
-          userId: fetchedToken.userId,
-          isAdmin: fetchedToken.user.isAdmin,
-          // convert teacherOf into an array of courseIds
-          teacherOf: teacherOf.map(({ courseId }) => courseId),
-        },
-      }
+    // The token is valid. Pass the token payload (in `decoded`), userId, and isAdmin to `credentials`
+    // which is available in route handlers via request.auth.credentials
+    return {
+      isValid: true,
+      credentials: {
+        tokenId: decoded.tokenId,
+        userId: fetchedToken.userId,
+        isAdmin: fetchedToken.user.isAdmin,
+        // convert teacherOf into an array of courseIds
+        teacherOf: teacherOf.map(({ courseId }) => courseId),
+      },
     }
   } catch (error) {
     request.log(['error', 'auth', 'db'], error)
     return { isValid: false, errorMessage: 'DB Error' }
   }
-
-  return { isValid: false, errorMessage: 'User not found' }
 }
 
 /**
@@ -179,15 +170,19 @@ const validateAPIToken = async (
  * Generates a short lived verification token and sends an email
  */
 async function loginHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+  // 👇 get prisma and the sendEmailToken from shared application state
   const { prisma, sendEmailToken } = request.server.app
+  // 👇 get the email from the request payload
   const { email } = request.payload as LoginInput
+  // 👇 generate an alphanumeric token
   const emailToken = generateEmailToken()
+  // 👇 create a date object for the email token expiration
   const tokenExpiration = add(new Date(), {
     minutes: EMAIL_TOKEN_EXPIRATION_MINUTES,
   })
 
   try {
-    // Create a short lived token and update user or create if they don't exist
+    // 👇 create a short lived token and update user or create if they don't exist
     const createdToken = await prisma.token.create({
       data: {
         emailToken,
@@ -206,6 +201,7 @@ async function loginHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
       },
     })
 
+    // 👇 send the email token
     await sendEmailToken(email, emailToken)
     return h.response().code(200)
   } catch (error) {
@@ -217,7 +213,9 @@ async function authenticateHandler(
   request: Hapi.Request,
   h: Hapi.ResponseToolkit,
 ) {
+  // 👇 get prisma from shared application state
   const { prisma } = request.server.app
+  // 👇 get the email and emailToken from the request payload
   const { email, emailToken } = request.payload as AuthenticateInput
 
   try {
@@ -232,15 +230,17 @@ async function authenticateHandler(
     })
 
     if (!fetchedEmailToken?.valid) {
+      // If the token doesn't exist or is not valid, return 401 unauthorized
       return Boom.unauthorized()
     }
 
     if (fetchedEmailToken.expiration < new Date()) {
+      // If the token has expired, return 401 unauthorized
       return Boom.unauthorized('Token expired')
     }
 
     // If token matches the user email passed in the payload, generate long lived API token
-    if (fetchedEmailToken && fetchedEmailToken.user.email === email) {
+    if (fetchedEmailToken?.user?.email === email) {
       const tokenExpiration = add(new Date(), {
         hours: AUTHENTICATION_TOKEN_EXPIRATION_HOURS,
       })
@@ -277,11 +277,13 @@ async function authenticateHandler(
   }
 }
 
-function generateApiToken(tokenId: number) {
+// Generate a signed JWT token with the tokenId in the payload
+function generateApiToken(tokenId: number): string {
   const jwtPayload = { tokenId }
 
   return jwt.sign(jwtPayload, JWT_SECRET, {
     algorithm: JWT_ALGORITHM,
+    noTimestamp: true,
   })
 }
 
