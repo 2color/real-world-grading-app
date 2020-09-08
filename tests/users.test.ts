@@ -21,6 +21,22 @@ describe('users endpoints', () => {
 
   let userId: number
 
+  test('profile', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/profile',
+      auth: {
+        strategy: API_AUTH_STATEGY,
+        credentials: testUserCredentials,
+      },
+    })
+
+    expect(response.statusCode).toEqual(200)
+
+    let fetchedUserId = JSON.parse(response.payload)?.id as number
+    expect(fetchedUserId).toEqual(testUserCredentials.userId)
+  })
+
   test('create user', async () => {
     const response = await server.inject({
       method: 'POST',

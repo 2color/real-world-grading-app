@@ -11,6 +11,17 @@ const usersPlugin = {
     server.route([
       {
         method: 'GET',
+        path: '/profile',
+        handler: getAuthenticatedUser,
+        options: {
+          auth: {
+            mode: 'required',
+            strategy: API_AUTH_STATEGY,
+          },
+        },
+      },
+      {
+        method: 'GET',
         path: '/users',
         handler: getUsersHandler,
         options: {
@@ -171,6 +182,33 @@ async function getUsersHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   } catch (err) {
     console.log(err)
     return Boom.badImplementation('failed to get users')
+  }
+}
+
+async function getAuthenticatedUser(
+  request: Hapi.Request,
+  h: Hapi.ResponseToolkit,
+) {
+  const { prisma } = request.server.app
+  const { userId } = request.auth.credentials
+
+  try {
+    const user = await prisma.user.findOne({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        social: true,
+      },
+      where: {
+        id: userId,
+      },
+    })
+    return h.response(user || undefined).code(200)
+  } catch (err) {
+    console.log(err)
+    return Boom.badImplementation()
   }
 }
 
