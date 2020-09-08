@@ -68,7 +68,7 @@ export async function isRequestedUserOrAdmin(
     return h.continue
   }
 
-  // The authenticated user is not a teacher
+  // The authenticated user is not authorized
   throw Boom.forbidden()
 }
 
