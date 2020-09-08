@@ -23,6 +23,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn ./src/index.ts",
     "seed": "ts-node ./src/seed.ts",
+    "seed-users": "ts-node ./src/seed-users.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "compile": "tsc",
