@@ -267,7 +267,7 @@ async function authenticateHandler(
         },
       })
 
-      const authToken = generateApiToken(createdToken.id)
+      const authToken = generateAuthToken(createdToken.id)
       return h.response().code(200).header('Authorization', authToken)
     } else {
       return Boom.unauthorized()
@@ -278,7 +278,7 @@ async function authenticateHandler(
 }
 
 // Generate a signed JWT token with the tokenId in the payload
-function generateApiToken(tokenId: number): string {
+function generateAuthToken(tokenId: number): string {
   const jwtPayload = { tokenId }
 
   return jwt.sign(jwtPayload, JWT_SECRET, {
