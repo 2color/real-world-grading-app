@@ -26,12 +26,14 @@
     "typescript": "^3.9.6"
   },
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "compile": "tsc",
     "dev": "ts-node-dev --respawn ./src/index.ts",
     "seed": "ts-node ./src/seed.ts",
     "seed-users": "ts-node ./src/seed-users.ts",
     "test": "jest",
     "test:watch": "jest --watch",
-    "compile": "tsc",
     "postgres:start": "docker-compose up -d",
     "migrate:save": "prisma migrate --experimental save",
     "migrate:up": "prisma migrate --experimental up --auto-approve --create-db",
