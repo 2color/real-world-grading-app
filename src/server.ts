@@ -17,7 +17,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 const server: Hapi.Server = Hapi.server({
   port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost',
+  host: process.env.HOST || '0.0.0.0',
   debug: isProduction ? false : { request: ['error'], log: ['error'] },
 })
 
