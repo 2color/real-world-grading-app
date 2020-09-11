@@ -1,4 +1,4 @@
-name: test-grading-app
+name: grading-app
 on: push
 
 jobs:
@@ -34,3 +34,14 @@ jobs:
       # run the migration in the test database
       - run: npm run migrate:up
       - run: npm run test
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' # Only deploy master
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.4.6 
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
