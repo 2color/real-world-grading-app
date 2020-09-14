@@ -1,4 +1,4 @@
-# Real-world class grading App
+# Real-world class grading backend
 
 A real-world class grading application built with Prisma.
 
