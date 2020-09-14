@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: '12.x'
       - run: npm ci
+      - run: npm run build
       # run the migration in the test database
       - run: npm run migrate:up
       - run: npm run test
@@ -40,6 +41,11 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
+      - run: npm ci
+      - name: Run production migration
+        run: npm run migrate:up
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - uses: akhileshns/heroku-deploy@v3.4.6 
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
