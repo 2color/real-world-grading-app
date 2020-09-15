@@ -20,7 +20,8 @@ const authPlugin: Hapi.Plugin<null> = {
   dependencies: ['prisma', 'hapi-auth-jwt2', 'app/email'],
   register: async function (server: Hapi.Server) {
     if (!process.env.JWT_SECRET) {
-      console.warn(
+      server.log(
+        'warn',
         'The JWT_SECRET env var is not set. This is unsafe! If running in production, set it.',
       )
     }
