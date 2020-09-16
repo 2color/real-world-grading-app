@@ -3,6 +3,10 @@ generator client {
   previewFeatures = ["connectOrCreate", "transactionApi"]
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
