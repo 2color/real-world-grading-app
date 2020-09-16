@@ -10,6 +10,7 @@ import testsPlugin from './plugins/tests'
 import authPlugin from './plugins/auth'
 import testResultsPlugin from './plugins/test-results'
 import dotenv from 'dotenv'
+import hapiPino from 'hapi-pino'
 
 dotenv.config()
 
@@ -22,6 +23,16 @@ const server: Hapi.Server = Hapi.server({
 })
 
 export async function createServer(): Promise<Hapi.Server> {
+  // Register the logger
+  await server.register({
+    plugin: hapiPino,
+    options: {
+      prettyPrint: process.env.NODE_ENV !== 'production',
+      // Redact Authorization headers, see https://getpino.io/#/docs/redaction
+      redact: ['req.headers.authorization'],
+    },
+  })
+
   await server.register([
     hapiAuthJWT,
     authPlugin,
@@ -41,7 +52,7 @@ export async function createServer(): Promise<Hapi.Server> {
 
 export async function startServer(server: Hapi.Server): Promise<Hapi.Server> {
   await server.start()
-  console.log(`Server running on ${server.info.uri}`)
+  server.log('info', `Server running on ${server.info.uri}`)
   return server
 }
 

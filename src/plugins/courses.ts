@@ -149,7 +149,7 @@ async function getCourseHandler(
       return h.response(course).code(200)
     }
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get course')
   }
 }
@@ -168,7 +168,7 @@ async function getCoursesHandler(
     })
     return h.response(courses).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get course')
   }
 }
@@ -201,7 +201,7 @@ async function createCourseHandler(
     })
     return h.response(createdCourse).code(201)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to create course')
   }
 }
@@ -223,7 +223,7 @@ async function updateCourseHandler(
     })
     return h.response(updatedCourse).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to update course')
   }
 }
@@ -251,7 +251,7 @@ async function deleteCourseHandler(
     ])
     return h.response().code(204)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to delete course')
   }
 }

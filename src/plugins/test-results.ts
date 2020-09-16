@@ -168,7 +168,7 @@ async function getTestResultsHandler(
 
     return h.response(testResults).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation(
       `failed to get test results for test ${testId}`,
     )
@@ -190,7 +190,7 @@ async function getUserTestResultsHandler(
     })
     return h.response(userTestResults).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get user test results')
   }
 }
@@ -222,7 +222,7 @@ async function createTestResultsHandler(
     })
     return h.response(createdTestResult).code(201)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation(
       `failed to create test result for testId: ${testId}`,
     )
@@ -249,7 +249,7 @@ async function updateTestResultHandler(
     })
     return h.response(updatedTestResult).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to update test result')
   }
 }
@@ -269,7 +269,7 @@ async function deleteTestResultHandler(
     })
     return h.response().code(204)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to delete test result')
   }
 }

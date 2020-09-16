@@ -110,7 +110,7 @@ async function getUserEnrollmentsHandler(
     })
     return h.response(userCourses).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get user')
   }
 }
@@ -141,7 +141,7 @@ async function createUserEnrollmentHandler(
     })
     return h.response(userCourses).code(201)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to update the user courses')
   }
 }
@@ -165,7 +165,7 @@ async function deleteUserEnrollmentHandler(
     })
     return h.response().code(204)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation(
       `failed to delete the user: ${userId} enrollment in course: ${courseId} `,
     )

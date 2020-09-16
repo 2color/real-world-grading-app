@@ -180,7 +180,7 @@ async function getUsersHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
     })
     return h.response(users).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get users')
   }
 }
@@ -207,7 +207,7 @@ async function getAuthenticatedUser(
     })
     return h.response(user || undefined).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation()
   }
 }
@@ -235,7 +235,7 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
       return h.response(user).code(200)
     }
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get user')
   }
 }
@@ -265,7 +265,7 @@ async function createUserHandler(
     })
     return h.response(createdUser).code(201)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to create user')
   }
 }
@@ -294,7 +294,7 @@ async function deleteUserHandler(
 
     return h.response().code(204)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to delete user')
   }
 }
@@ -316,7 +316,7 @@ async function updateUserHandler(
     })
     return h.response(updatedUser).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to update user')
   }
 }

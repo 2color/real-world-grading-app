@@ -138,7 +138,7 @@ async function getTestHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
       return h.response(test).code(200)
     }
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to get test')
   }
 }
@@ -165,7 +165,7 @@ async function createTestHandler(
     })
     return h.response(createdTest).code(201)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to create test')
   }
 }
@@ -185,7 +185,7 @@ async function deleteTestHandler(
     })
     return h.response().code(204)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to delete test')
   }
 }
@@ -207,7 +207,7 @@ async function updateTestHandler(
     })
     return h.response(updatedTest).code(200)
   } catch (err) {
-    console.log(err)
+    request.log('error', err)
     return Boom.badImplementation('failed to update test')
   }
 }
