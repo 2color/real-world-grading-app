@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { API_AUTH_STATEGY } from './auth'
 import {
@@ -17,6 +17,7 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: getTestHandler,
         options: {
+          tags: ['api'],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -37,6 +38,7 @@ const testsPlugin = {
         path: '/courses/{courseId}/tests',
         handler: createTestHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfCourseOrAdmin],
           auth: {
             mode: 'required',
@@ -59,6 +61,7 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: updateTestHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfTestOrAdmin],
           auth: {
             mode: 'required',
@@ -81,6 +84,7 @@ const testsPlugin = {
         path: '/courses/tests/{testId}',
         handler: deleteTestHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfTestOrAdmin],
           auth: {
             mode: 'required',

@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi, { object } from '@hapi/joi'
+import Joi, { object } from 'joi'
 import Boom from '@hapi/boom'
 import { UserRole } from '@prisma/client'
 import { API_AUTH_STATEGY } from './auth'
@@ -15,6 +15,7 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses',
         handler: getUserEnrollmentsHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',
@@ -36,6 +37,7 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses',
         handler: createUserEnrollmentHandler,
         options: {
+          tags: ['api'],
           // TODO: ensure that only a teacher of a course can enroll other users as teachers
           pre: [isRequestedUserOrAdmin],
           auth: {
@@ -63,6 +65,7 @@ const usersEnrollmentPlugin = {
         path: '/users/{userId}/courses/{courseId}',
         handler: deleteUserEnrollmentHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',

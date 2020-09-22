@@ -10,6 +10,7 @@ const plugin: Hapi.Plugin<undefined> = {
       handler: (_, h: Hapi.ResponseToolkit) =>
         h.response({ up: true }).code(200),
       options: {
+        tags: ['api'],
         auth: false,
       },
     })

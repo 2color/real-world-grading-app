@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import Boom from '@hapi/boom'
 import jwt from 'jsonwebtoken'
 import { TokenType, UserRole } from '@prisma/client'
@@ -42,6 +42,7 @@ const authPlugin: Hapi.Plugin<null> = {
         path: '/login',
         handler: loginHandler,
         options: {
+          tags: ['api'],
           auth: false,
           validate: {
             failAction: (request, h, err) => {
@@ -60,6 +61,7 @@ const authPlugin: Hapi.Plugin<null> = {
         path: '/authenticate',
         handler: authenticateHandler,
         options: {
+          tags: ['api'],
           auth: false,
           validate: {
             payload: Joi.object({

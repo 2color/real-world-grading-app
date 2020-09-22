@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { API_AUTH_STATEGY } from './auth'
 import { isRequestedUserOrAdmin, isAdmin } from '../auth-helpers'
@@ -14,6 +14,7 @@ const usersPlugin = {
         path: '/profile',
         handler: getAuthenticatedUser,
         options: {
+          tags: ['api'],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -25,6 +26,7 @@ const usersPlugin = {
         path: '/users',
         handler: getUsersHandler,
         options: {
+          tags: ['api'],
           pre: [isAdmin],
           auth: {
             mode: 'required',
@@ -43,6 +45,7 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: getUserHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',
@@ -64,6 +67,7 @@ const usersPlugin = {
         path: '/users',
         handler: createUserHandler,
         options: {
+          tags: ['api'],
           pre: [isAdmin],
           auth: {
             mode: 'required',
@@ -83,6 +87,7 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: deleteUserHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',
@@ -104,6 +109,7 @@ const usersPlugin = {
         path: '/users/{userId}',
         handler: updateUserHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',

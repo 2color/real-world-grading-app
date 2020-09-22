@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi, { required } from '@hapi/joi'
+import Joi, { required } from 'joi'
 import Boom, { boomify } from '@hapi/boom'
 import { API_AUTH_STATEGY } from './auth'
 import { UserRole } from '@prisma/client'
@@ -15,6 +15,7 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: getCourseHandler,
         options: {
+          tags: ['api'],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -35,6 +36,7 @@ const coursesPlugin = {
         path: '/courses',
         handler: getCoursesHandler,
         options: {
+          tags: ['api'],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -46,6 +48,7 @@ const coursesPlugin = {
         path: '/courses',
         handler: createCourseHandler,
         options: {
+          tags: ['api'],
           auth: {
             mode: 'required',
             strategy: API_AUTH_STATEGY,
@@ -64,6 +67,7 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: updateCourseHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfCourseOrAdmin],
           auth: {
             mode: 'required',
@@ -86,6 +90,7 @@ const coursesPlugin = {
         path: '/courses/{courseId}',
         handler: deleteCourseHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfCourseOrAdmin],
           auth: {
             mode: 'required',

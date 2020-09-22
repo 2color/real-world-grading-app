@@ -11,6 +11,9 @@ import authPlugin from './plugins/auth'
 import testResultsPlugin from './plugins/test-results'
 import dotenv from 'dotenv'
 import hapiPino from 'hapi-pino'
+import * as HapiSwagger from 'hapi-swagger'
+import Inert from '@hapi/inert'
+import Vision from '@hapi/vision'
 
 dotenv.config()
 
@@ -19,20 +22,31 @@ const isProduction = process.env.NODE_ENV === 'production'
 const server: Hapi.Server = Hapi.server({
   port: process.env.PORT || 3000,
   host: process.env.HOST || '0.0.0.0',
-  debug: isProduction ? false : { request: ['error'], log: ['error'] },
 })
 
-export async function createServer(): Promise<Hapi.Server> {
-  // Register the logger
-  await server.register({
-    plugin: hapiPino,
-    options: {
-      prettyPrint: process.env.NODE_ENV !== 'production',
-      // Redact Authorization headers, see https://getpino.io/#/docs/redaction
-      redact: ['req.headers.authorization'],
-    },
-  })
+const swaggerOptions: HapiSwagger.RegisterOptions = {
+  info: {
+    title: 'real-world-grading-app API Documentation',
+  },
+}
 
+export async function createServer(): Promise<Hapi.Server> {
+
+  // Register the logger
+  await server.register([
+    {
+      plugin: hapiPino,
+      options: {
+        prettyPrint: process.env.NODE_ENV !== 'production',
+        // Redact Authorization headers, see https://getpino.io/#/docs/redaction
+        redact: ['req.headers.authorization'],
+      },
+    },
+    {
+      plugin: HapiSwagger,
+      options: swaggerOptions,
+    },
+  ])
   await server.register([
     hapiAuthJWT,
     authPlugin,
@@ -44,7 +58,10 @@ export async function createServer(): Promise<Hapi.Server> {
     coursesPlugin,
     testsPlugin,
     testResultsPlugin,
+    Inert,
+    Vision,
   ])
+
   await server.initialize()
 
   return server

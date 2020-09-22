@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { API_AUTH_STATEGY } from './auth'
 import {
@@ -18,6 +18,7 @@ const testResultsPlugin = {
         path: '/users/{userId}/test-results',
         handler: getUserTestResultsHandler,
         options: {
+          tags: ['api'],
           pre: [isRequestedUserOrAdmin],
           auth: {
             mode: 'required',
@@ -39,6 +40,7 @@ const testResultsPlugin = {
         path: '/courses/tests/{testId}/test-results',
         handler: getTestResultsHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfTestOrAdmin],
           auth: {
             mode: 'required',
@@ -60,6 +62,7 @@ const testResultsPlugin = {
         path: '/courses/tests/{testId}/test-results',
         handler: createTestResultsHandler,
         options: {
+          tags: ['api'],
           pre: [isTeacherOfTestOrAdmin],
           auth: {
             mode: 'required',
@@ -82,6 +85,7 @@ const testResultsPlugin = {
         path: '/courses/tests/test-results/{testResultId}',
         handler: updateTestResultHandler,
         options: {
+          tags: ['api'],
           pre: [isGraderOfTestResultOrAdmin],
           auth: {
             mode: 'required',
@@ -104,6 +108,7 @@ const testResultsPlugin = {
         path: '/courses/tests/test-results/{testResultId}',
         handler: deleteTestResultHandler,
         options: {
+          tags: ['api'],
           pre: [isGraderOfTestResultOrAdmin],
           auth: {
             mode: 'required',
