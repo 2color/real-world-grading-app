@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi from '@hapi/joi'
+import Joi from 'joi'
 import Boom from '@hapi/boom'
 import jwt from 'jsonwebtoken'
 import { TokenType, UserRole } from '@prisma/client'
