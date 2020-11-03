@@ -1,5 +1,5 @@
 import Hapi from '@hapi/hapi'
-import Joi, { object } from '@hapi/joi'
+import Joi, { object } from 'joi'
 import Boom from '@hapi/boom'
 import { UserRole } from '@prisma/client'
 import { API_AUTH_STATEGY } from './auth'

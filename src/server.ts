@@ -19,7 +19,6 @@ const isProduction = process.env.NODE_ENV === 'production'
 const server: Hapi.Server = Hapi.server({
   port: process.env.PORT || 3000,
   host: process.env.HOST || '0.0.0.0',
-  debug: isProduction ? false : { request: ['error'], log: ['error'] },
 })
 
 export async function createServer(): Promise<Hapi.Server> {
@@ -27,6 +26,7 @@ export async function createServer(): Promise<Hapi.Server> {
   await server.register({
     plugin: hapiPino,
     options: {
+      logEvents: (process.env.CI === 'true' || process.env.TEST === 'true') ? false : undefined,
       prettyPrint: process.env.NODE_ENV !== 'production',
       // Redact Authorization headers, see https://getpino.io/#/docs/redaction
       redact: ['req.headers.authorization'],
