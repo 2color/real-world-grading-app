@@ -33,7 +33,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       # run the migration in the test database
-      - run: npm run migrate:up
+      - run: npm run db:push
       - run: npm run test
   deploy:
     runs-on: ubuntu-latest
