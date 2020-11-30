@@ -135,7 +135,7 @@ async function getCourseHandler(
   const courseId = parseInt(request.params.courseId, 10)
 
   try {
-    const course = await prisma.course.findOne({
+    const course = await prisma.course.findUnique({
       where: {
         id: courseId,
       },

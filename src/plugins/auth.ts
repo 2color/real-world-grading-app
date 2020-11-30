@@ -117,7 +117,7 @@ const validateAPIToken = async (
 
   try {
     // Fetch the token from DB to verify it's valid
-    const fetchedToken = await prisma.token.findOne({
+    const fetchedToken = await prisma.token.findUnique({
       where: {
         id: tokenId,
       },
@@ -221,7 +221,7 @@ async function authenticateHandler(
 
   try {
     // Get short lived email token
-    const fetchedEmailToken = await prisma.token.findOne({
+    const fetchedEmailToken = await prisma.token.findUnique({
       where: {
         emailToken: emailToken,
       },

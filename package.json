@@ -6,7 +6,7 @@
     "@hapi/boom": "^9.1.0",
     "@hapi/hapi": "^20.0.1",
     "joi": "^17.3.0",
-    "@prisma/client": "2.10.1",
+    "@prisma/client": "2.12.1",
     "@sendgrid/mail": "^7.3.0",
     "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
@@ -15,7 +15,7 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "@prisma/cli": "2.10.1",
+    "@prisma/cli": "2.12.1",
     "@types/hapi-pino": "^8.0.1",
     "@types/hapi__hapi": "^20.0.1",
     "@types/jest": "^26.0.9",

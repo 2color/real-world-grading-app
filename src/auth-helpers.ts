@@ -37,7 +37,7 @@ export async function isGraderOfTestResultOrAdmin(
   const testResultId = parseInt(request.params.testResultId, 10)
   const { prisma } = request.server.app
 
-  const testResult = await prisma.testResult.findOne({
+  const testResult = await prisma.testResult.findUnique({
     where: {
       id: testResultId,
     },
@@ -98,7 +98,7 @@ export async function isTeacherOfTestOrAdmin(
   const testId = parseInt(request.params.testId, 10)
   const { prisma } = request.server.app
 
-  const test = await prisma.test.findOne({
+  const test = await prisma.test.findUnique({
     where: {
       id: testId,
     },

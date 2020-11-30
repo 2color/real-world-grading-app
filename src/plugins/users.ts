@@ -193,7 +193,7 @@ async function getAuthenticatedUser(
   const { userId } = request.auth.credentials
 
   try {
-    const user = await prisma.user.findOne({
+    const user = await prisma.user.findUnique({
       select: {
         id: true,
         email: true,
@@ -217,7 +217,7 @@ async function getUserHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const userId = parseInt(request.params.userId, 10)
 
   try {
-    const user = await prisma.user.findOne({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },

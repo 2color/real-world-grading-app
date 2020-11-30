@@ -127,7 +127,7 @@ async function getTestHandler(request: Hapi.Request, h: Hapi.ResponseToolkit) {
   const testId = parseInt(request.params.testId, 10)
 
   try {
-    const test = await prisma.test.findOne({
+    const test = await prisma.test.findUnique({
       where: {
         id: testId,
       },
