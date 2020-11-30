@@ -15,7 +15,7 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "@prisma/cli": "2.12.1",
+    "@prisma/cli": "^2.13.0-dev.26",
     "@types/hapi-pino": "^8.0.1",
     "@types/hapi__hapi": "^20.0.1",
     "@types/jest": "^26.0.9",
@@ -37,8 +37,8 @@
     "test:watch": "TEST=true jest --watch",
     "postgres:start": "docker-compose up -d",
     "db:push": "prisma db push --preview-feature --ignore-migrations",
-    "migrate:save": "prisma migrate --experimental save",
-    "migrate:up": "prisma migrate --experimental up --auto-approve --create-db",
+    "migrate:dev": "prisma migrate --preview-feature dev",
+    "migrate:deploy": "prisma migrate --preview-feature deploy",
     "prisma:generate": "prisma generate"
   },
   "engines": {
