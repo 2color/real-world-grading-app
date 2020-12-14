@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id        Int     @default(autoincrement()) @id
+  id        Int     @id @default(autoincrement())
   email     String  @unique
   firstName String?
   lastName  String?
@@ -23,7 +23,7 @@ model User {
 }
 
 model Token {
-  id         Int       @default(autoincrement()) @id
+  id         Int       @id @default(autoincrement())
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   type       TokenType
@@ -37,7 +37,7 @@ model Token {
 }
 
 model Course {
-  id            Int     @default(autoincrement()) @id
+  id            Int     @id @default(autoincrement())
   name          String
   courseDetails String?
 
@@ -61,7 +61,7 @@ model CourseEnrollment {
 }
 
 model Test {
-  id        Int      @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   updatedAt DateTime @updatedAt
   name      String
   date      DateTime
@@ -73,7 +73,7 @@ model Test {
 }
 
 model TestResult {
-  id        Int      @default(autoincrement()) @id
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   result    Int // Percentage precise to one decimal point represented as `result * 10^-1`
 
