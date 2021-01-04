@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm ci
       - name: Run production migration
-        run: npm run migrate:up
+        run: npm run migrate:deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - uses: akhileshns/heroku-deploy@v3.4.6 
