@@ -36,9 +36,9 @@
     "test": "TEST=true jest",
     "test:watch": "TEST=true jest --watch",
     "postgres:start": "docker-compose up -d",
-    "db:push": "prisma db push --preview-feature --ignore-migrations",
-    "migrate:save": "prisma migrate --experimental save",
-    "migrate:up": "prisma migrate --experimental up --auto-approve --create-db",
+    "db:push": "prisma db push --preview-feature",
+    "migrate:dev": "prisma migrate dev --preview-feature",
+    "migrate:deploy": "prisma migrate deploy --preview-feature",
     "prisma:generate": "prisma generate"
   },
   "engines": {
