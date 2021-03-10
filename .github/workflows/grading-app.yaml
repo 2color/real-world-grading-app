@@ -40,12 +40,13 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' # Only deploy master
     needs: test
     steps:
-      - uses: actions/checkout@v2
-      - run: npm ci
-      - name: Run production migration
-        run: npm run migrate:deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # - uses: actions/checkout@v2
+      # - run: npm ci
+      # - name: Run production migration
+      # Note: disabled migrate deploy in favour of using the Procfile release phase
+      #   run: npm run migrate:deploy
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - uses: akhileshns/heroku-deploy@v3.12.12
         name: Deploy to Heroku
         with:
