@@ -8,6 +8,7 @@
     "joi": "^17.3.0",
     "@prisma/client": "2.19.0-dev.21",
     "@sendgrid/mail": "^7.4.0",
+    "prisma": "2.19.0-dev.21",
     "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
     "hapi-auth-jwt2": "^10.1.0",
@@ -15,7 +16,6 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "prisma": "2.19.0-dev.21",
     "@types/hapi-pino": "^8.0.1",
     "@types/hapi__hapi": "^20.0.3",
     "@types/jest": "^26.0.9",

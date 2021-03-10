@@ -46,7 +46,7 @@ jobs:
         run: npm run migrate:deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      - uses: akhileshns/heroku-deploy@v3.4.6 
+      - uses: akhileshns/heroku-deploy@v3.12.12
         name: Deploy to Heroku
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
