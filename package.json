@@ -7,7 +7,7 @@
     "@hapi/hapi": "^20.0.3",
     "joi": "^17.3.0",
     "@prisma/client": "2.19.0",
-    "@sendgrid/mail": "^7.4.0",
+    "@sendgrid/mail": "^7.4.2",
     "prisma": "2.19.0",
     "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
