@@ -96,6 +96,22 @@ async function main() {
     },
   })
 
+  const feedback1 = await prisma.courseFeedback.create({
+    data: {
+      feedback: 'Interesting course. Looking forward to learning more',
+      course: {
+        connect: {
+          id: course.id
+        }
+      },
+      student: {
+        connect: {
+          id: david.id
+        }
+      }
+    }
+  })
+
   const testResultsDavid = [650, 900, 950]
   const testResultsShakuntala = [800, 950, 910]
 
