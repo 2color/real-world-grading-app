@@ -20,6 +20,7 @@ model User {
   testResults TestResult[]       @relation(name: "results")
   testsGraded TestResult[]       @relation(name: "graded")
   tokens      Token[]
+  feedback    CourseFeedback[]
 }
 
 model Token {
@@ -42,8 +43,19 @@ model Course {
   courseDetails String?
 
   // Relation fields
-  members CourseEnrollment[]
-  tests   Test[]
+  members  CourseEnrollment[]
+  tests    Test[]
+  feedback CourseFeedback[]
+}
+
+model CourseFeedback {
+  id       Int    @id @default(autoincrement())
+  feedback String @db.Text
+
+  studentId Int
+  courseId  Int
+  student   User   @relation(fields: [studentId], references: [id])
+  course    Course @relation(fields: [courseId], references: [id])
 }
 
 model CourseEnrollment {
