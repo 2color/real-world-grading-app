@@ -3,6 +3,10 @@ import { TokenType, UserRole } from '@prisma/client'
 import { add } from 'date-fns'
 import { AuthCredentials } from '@hapi/hapi'
 
+function getRandomIntString(): string {
+  return Math.floor(Math.random() * Math.floor(10000)).toString()
+}
+
 // Helper function to create a test user and return the credentials object the same way that the auth plugin does
 export const createUserCredentials = async (
   prisma: PrismaClient,
@@ -10,7 +14,7 @@ export const createUserCredentials = async (
 ): Promise<AuthCredentials> => {
   const testUser = await prisma.user.create({
     data: {
-      email: `test-${Date.now()}@test.com`,
+      email: `test-${Date.now()}-${getRandomIntString()}}@test.com`,
       isAdmin,
       tokens: {
         create: {
@@ -54,11 +58,11 @@ export const createCourseTestStudentTeacher = async (
   const teacherCredentials = await createUserCredentials(prisma, false)
   const studentCredentials = await createUserCredentials(prisma, false)
 
-  const now = Date.now().toString()
+  const uniqueIdentifier = `${Date.now().toString()}-${getRandomIntString()}`
   const course = await prisma.course.create({
     data: {
-      name: `test-course-${now}`,
-      courseDetails: `test-course-${now}-details`,
+      name: `test-course-${uniqueIdentifier}`,
+      courseDetails: `test-course-${uniqueIdentifier}-details`,
       members: {
         create: [
           {
