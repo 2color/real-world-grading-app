@@ -1,0 +1,5 @@
+{
+  "extends": ["config:base"],
+  "masterIssue": true,
+  "reviewers": ["@2color"]
+}
