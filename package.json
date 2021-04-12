@@ -11,7 +11,7 @@
     "prisma": "2.20.1",
     "date-fns": "2.16.1",
     "dotenv": "8.2.0",
-    "hapi-auth-jwt2": "10.1.0",
+    "hapi-auth-jwt2": "10.2.0",
     "hapi-pino": "8.3.0",
     "jsonwebtoken": "8.5.1"
   },
