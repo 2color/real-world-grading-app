@@ -10,7 +10,7 @@
     "@sendgrid/mail": "7.4.2",
     "prisma": "2.22.0",
     "date-fns": "2.16.1",
-    "dotenv": "8.2.0",
+    "dotenv": "9.0.2",
     "hapi-auth-jwt2": "10.2.0",
     "hapi-pino": "8.3.0",
     "jsonwebtoken": "8.5.1"
