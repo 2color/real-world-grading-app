@@ -6,7 +6,7 @@ services:
   # - TEST_POSTGRES_URI=postgres://prisma:prisma@localhost:5432/
 
   postgres:
-    image: postgres:10.16
+    image: postgres:10.18
     restart: always
     environment:
       - POSTGRES_USER=prisma
