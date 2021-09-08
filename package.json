@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
-    "@hapi/boom": "9.1.0",
-    "@hapi/hapi": "20.0.3",
+    "@hapi/boom": "9.1.4",
+    "@hapi/hapi": "20.1.5",
     "joi": "17.4.2",
     "@prisma/client": "2.22.0",
     "@sendgrid/mail": "7.4.6",
