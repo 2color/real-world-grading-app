@@ -44,6 +44,6 @@
     "prisma:generate": "prisma generate"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   }
 }
