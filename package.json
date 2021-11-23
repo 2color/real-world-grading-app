@@ -4,7 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "9.1.4",
-    "@hapi/hapi": "20.1.5",
+    "@hapi/hapi": "20.2.1",
     "joi": "17.4.2",
     "@prisma/client": "3.5.0",
     "@sendgrid/mail": "7.4.6",
