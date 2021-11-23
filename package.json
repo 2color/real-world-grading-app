@@ -19,7 +19,7 @@
     "@types/hapi-pino": "8.0.2",
     "@types/hapi__hapi": "20.0.9",
     "@types/jest": "27.0.3",
-    "@types/jsonwebtoken": "8.5.3",
+    "@types/jsonwebtoken": "8.5.6",
     "jest": "27.3.1",
     "ts-jest": "27.0.7",
     "ts-node": "10.4.0",
