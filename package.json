@@ -12,11 +12,11 @@
     "date-fns": "2.22.1",
     "dotenv": "10.0.0",
     "hapi-auth-jwt2": "10.2.0",
-    "hapi-pino": "8.3.0",
+    "hapi-pino": "9.3.0",
     "jsonwebtoken": "8.5.1"
   },
   "devDependencies": {
-    "@types/hapi-pino": "8.0.2",
+    "@types/hapi-pino": "9.1.2",
     "@types/hapi__hapi": "20.0.9",
     "@types/jest": "27.0.3",
     "@types/jsonwebtoken": "8.5.6",
