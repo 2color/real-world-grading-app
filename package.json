@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/hapi-pino": "8.0.2",
-    "@types/hapi__hapi": "20.0.9",
+    "@types/hapi__hapi": "20.0.12",
     "@types/jest": "27.0.3",
     "@types/jsonwebtoken": "8.5.6",
     "jest": "27.3.1",
