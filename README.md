@@ -2,7 +2,7 @@
 
 ## ⚠️ Warning
 
-This repo is no longer actively maintained.
+This repo is no longer actively maintained, however it's still a [great educational](https://www.prisma.io/blog/backend-prisma-typescript-orm-with-postgresql-data-modeling-tsjs1ps7kip1) resource for building REST APIs in Node.js. 
 
 ## Intro
 
@@ -22,7 +22,7 @@ The goal if this application is to showcase a real-world scenario of an applicat
 - Integration with other APIs
 - Deployment
 
-Check out the [associated tutorial](https://www.prisma.io/blog/modern-backend-1-tsjs1ps7kip1/) to learn more about how the backend was built.
+Check out the [**associated tutorial**](https://www.prisma.io/blog/modern-backend-1-tsjs1ps7kip1/) to learn more about how the backend was built.
 
 ## Data model
 
