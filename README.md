@@ -1,5 +1,11 @@
 # Real-world class grading backend
 
+## ⚠️ Warning
+
+This repo is no longer actively maintained.
+
+## Intro
+
 A real-world class grading application built with Prisma.
 
 The grading application is used to manage enrollment in online classes, tests (as in exams) for classes, and test results.
