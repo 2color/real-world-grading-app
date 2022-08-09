@@ -117,3 +117,5 @@ export async function isTeacherOfTestOrAdmin(
   // The authenticated user is not a teacher
   throw Boom.forbidden()
 }
+
+
